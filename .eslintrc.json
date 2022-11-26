@@ -1,0 +1,25 @@
+{
+    "root": true,
+    "env": {
+        "googleappsscript/googleappsscript": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier",
+        "prettier/@typescript-eslint"
+    ],
+    "overrides": [
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "googleappsscript"
+    ],
+    "rules": {
+        "@typescript-eslint/explicit-function-return-type": "warn"
+    }
+}

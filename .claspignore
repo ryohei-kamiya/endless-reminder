@@ -1,0 +1,5 @@
+# ignore all files…
+**/**
+
+# except files in dist directory
+!dist/**

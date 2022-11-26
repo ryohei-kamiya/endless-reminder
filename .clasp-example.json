@@ -1,0 +1,7 @@
+{
+    "scriptId": "${SCRIPT_ID}",
+    "rootDir": "./dist",
+    "parentId": [
+        "${PARENT_ID}"
+    ]
+}
