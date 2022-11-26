@@ -1,8 +1,6 @@
 {
   "scripts": {
-    "deploy": "npm run build; clasp push",
-    "build": "npm run clean; ./node_modules/typescript/bin/tsc --build; cp ./src/appsscript.json ./dist/",
-    "clean": "rm -rf dist"
+    "deploy": "clasp push"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",
