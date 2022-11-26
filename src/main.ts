@@ -45,7 +45,7 @@ function main() {
             const payload = {
               token: slackAppToken,
               channel: channel,
-              text: escapeMessage(message),
+              text: message,
               icon_emoji: ":spiral_calendar_pad:",
               username: "reminder",
             };
@@ -145,14 +145,4 @@ function setTriggerOfSendMessageToSlack(triggeredDate: Date, payload: any) {
     .at(triggeredDate)
     .create();
   triggerManager.setTriggerArguments(trigger, payload, false);
-}
-
-/**
- * Escape line break codes and tab in message.
- * @param {string} message
- * @return {string}
- */
-function escapeMessage(message: string): string {
-  let result = message.replace(/(\r\n|\n|\r)/gm, "\\n");
-  return result.replace(/\t/g, "\\t");
 }
