@@ -18,10 +18,9 @@ export namespace triggerManager {
     recurring: boolean
   ) => {
     const triggerUid = trigger.getUniqueId();
-    const triggerData: any = {
-      RECURRING_KEY: recurring,
-      ARGUMENTS_KEY: functionArguments,
-    };
+    const triggerData: any = {};
+    triggerData[RECURRING_KEY] = recurring;
+    triggerData[ARGUMENTS_KEY] = functionArguments;
     PropertiesService.getScriptProperties().setProperty(
       triggerUid,
       JSON.stringify(triggerData)
@@ -42,7 +41,7 @@ export namespace triggerManager {
     const triggerData = JSON.parse(triggerUidValue);
 
     if (!triggerData[RECURRING_KEY]) {
-      deleteTriggerByUid(triggerUid);
+      triggerManager.deleteTriggerByUid(triggerUid);
     }
 
     return triggerData[ARGUMENTS_KEY];
@@ -78,7 +77,7 @@ export namespace triggerManager {
       console.error("Could not find trigger with id '%s'", triggerUid);
     }
 
-    deleteTriggerArguments(triggerUid);
+    triggerManager.deleteTriggerArguments(triggerUid);
   };
 
   /**
@@ -88,6 +87,6 @@ export namespace triggerManager {
    */
   export const deleteTrigger = (trigger: GoogleAppsScript.Script.Trigger) => {
     ScriptApp.deleteTrigger(trigger);
-    deleteTriggerArguments(trigger.getUniqueId());
+    triggerManager.deleteTriggerArguments(trigger.getUniqueId());
   };
 }

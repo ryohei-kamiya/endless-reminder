@@ -67,7 +67,7 @@ function main() {
 function countBusinessDays(argDate: Date): number {
   let results: number = 0;
   let totalDays: number = argDate.getDate();
-  const date: Date = new Date(totalDays);
+  const date = new Date(argDate);
   while (totalDays > 0) {
     date.setDate(totalDays);
     if (!isHoliday(date)) {
