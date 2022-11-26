@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "deploy": "npm run build; clasp push",
+    "build": "npm run clean; ./node_modules/typescript/bin/tsc --build; cp ./src/appsscript.json ./dist/",
+    "clean": "rm -rf dist"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
