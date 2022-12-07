@@ -15,7 +15,7 @@ export const setReminder = (scheduledMessage: sm.ScheduledMessage) => {
     "remind"
   )
     .timeBased()
-    .at(scheduledMessage.date)
+    .at(new Date(scheduledMessage.datetime))
     .create();
   triggerManager.setTriggerArguments(trigger, scheduledMessage, false);
 };
@@ -105,7 +105,10 @@ export const isMemberInCompletionMessageSenders = (
   return false;
 };
 
-global.remind = (scheduledMessage: sm.ScheduledMessage) => {
+global.remind = (event: any) => {
+  const scheduledMessage: sm.ScheduledMessage = triggerManager.handleTriggered(
+    event.triggerUid
+  );
   if (scheduledMessage.threadTs === null) {
     const payload = {
       channel: scheduledMessage.channel,
@@ -117,39 +120,44 @@ global.remind = (scheduledMessage: sm.ScheduledMessage) => {
       username: "reminder",
     };
     scheduledMessage.threadTs = slack.sendMessageToSlack(payload);
-    const allMembers = slack.getMembersFromSlackChannel(
+    const channelMemberIds = slack.getMemberIdsOnSlackChannel(
       scheduledMessage.channel
     );
     if (
       scheduledMessage.sendTo.some(
-        (member) => member === "channel" || member === "here"
+        (memberId) => memberId === "channel" || memberId === "here"
       )
     ) {
-      scheduledMessage.sendTo = allMembers;
+      scheduledMessage.sendTo = channelMemberIds.filter(
+        (memberId) => !slack.isBot(memberId)
+      );
     } else {
       const sendTo = [];
-      const notFoundMembers: string[] = [];
-      for (let member of scheduledMessage.sendTo) {
-        if (!allMembers.includes(member)) {
-          notFoundMembers.push(member);
+      const notFoundMemberIds: string[] = [];
+      for (let memberId of scheduledMessage.sendTo) {
+        if (!channelMemberIds.includes(memberId)) {
+          notFoundMemberIds.push(memberId);
         } else {
-          sendTo.push(member);
+          sendTo.push(memberId);
         }
       }
-      if (notFoundMembers.length > 0) {
+      if (notFoundMemberIds.length > 0) {
         const userGroups = slack.getUserGroups();
-        for (let notFoundMember of notFoundMembers) {
+        for (let notFoundMember of notFoundMemberIds) {
           const filteredUserGroups = userGroups.filter(
             (element) => element.handle === notFoundMember
           );
           if (filteredUserGroups.length > 0) {
             const userGroup = filteredUserGroups[0];
-            const membersInUserGroup = slack.getMembersInUserGroup(
+            const memberIdsInUserGroup = slack.getMemberIdsInUserGroup(
               userGroup.id
             );
-            for (let member of membersInUserGroup) {
-              if (!sendTo.includes(member)) {
-                sendTo.push(member);
+            for (let memberId of memberIdsInUserGroup) {
+              if (slack.isBot(memberId)) {
+                continue;
+              }
+              if (!sendTo.includes(memberId)) {
+                sendTo.push(memberId);
               }
             }
           }
@@ -157,7 +165,10 @@ global.remind = (scheduledMessage: sm.ScheduledMessage) => {
       }
       scheduledMessage.sendTo = sendTo;
     }
-    scheduledMessage.date = calendar.getNextWorkingDay(scheduledMessage.date);
+    const date = calendar.getNextWorkingDay(
+      new Date(scheduledMessage.datetime)
+    );
+    scheduledMessage.datetime = date.getTime();
     setReminder(scheduledMessage);
   } else {
     const replies = slack.getRepliesFromSlackThread(
@@ -166,11 +177,15 @@ global.remind = (scheduledMessage: sm.ScheduledMessage) => {
     );
     const completionKeywords = getCompletionKeywords();
     const sendTo = [];
-    for (let member of scheduledMessage.sendTo) {
+    for (let memberId of scheduledMessage.sendTo) {
       if (
-        !isMemberInCompletionMessageSenders(member, replies, completionKeywords)
+        !isMemberInCompletionMessageSenders(
+          memberId,
+          replies,
+          completionKeywords
+        )
       ) {
-        sendTo.push(member);
+        sendTo.push(memberId);
       }
     }
     if (sendTo.length > 0) {
@@ -186,7 +201,10 @@ global.remind = (scheduledMessage: sm.ScheduledMessage) => {
         username: "reminder",
       };
       slack.sendMessageToSlack(payload);
-      scheduledMessage.date = calendar.getNextWorkingDay(scheduledMessage.date);
+      const date = calendar.getNextWorkingDay(
+        new Date(scheduledMessage.datetime)
+      );
+      scheduledMessage.datetime = date.getTime();
       setReminder(scheduledMessage);
     }
   }

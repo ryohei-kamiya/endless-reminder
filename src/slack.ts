@@ -1,5 +1,3 @@
-import * as triggerManager from "./trigger-manager";
-
 export type SlackMessage = {
   type: string;
   user: string;
@@ -36,6 +34,78 @@ export type UserGroup = {
   user_count?: string;
 };
 
+export type Channel = {
+  id: string;
+  name: string;
+  is_channel: boolean;
+  is_group: boolean;
+  is_im: boolean;
+  created?: number;
+  creator?: string;
+  is_archived?: boolean;
+  is_general?: boolean;
+  unlinked?: number;
+  name_normalized?: string;
+  is_shared?: boolean;
+  is_ext_shared?: boolean;
+  is_org_shared?: boolean;
+  pending_shared?: string[];
+  is_pending_ext_shared?: boolean;
+  is_member?: boolean;
+  is_private: boolean;
+  is_mpim: boolean;
+  topic?: {
+    value?: string;
+    creator?: string;
+    last_set?: number;
+  };
+  purpose?: {
+    value?: string;
+    creator?: string;
+    last_set?: number;
+  };
+  previous_names?: string[];
+  num_members?: number;
+};
+
+export type Member = {
+  id: string;
+  team_id: string;
+  name: string;
+  deleted: boolean;
+  color?: string;
+  real_name?: string;
+  tz?: string;
+  tz_label?: string;
+  tz_offset: number;
+  profile?: {
+    avatar_hash?: string;
+    status_text?: string;
+    status_emoji?: string;
+    real_name?: string;
+    display_name?: string;
+    real_name_normalized?: string;
+    display_name_normalized?: string;
+    email?: string;
+    image_24?: string;
+    image_32?: string;
+    image_48?: string;
+    image_72?: string;
+    image_192?: string;
+    image_512?: string;
+    team?: string;
+  };
+  is_admin?: boolean;
+  is_owner?: boolean;
+  is_primary_owner?: boolean;
+  is_restricted?: boolean;
+  is_ultra_restricted?: boolean;
+  is_bot: boolean;
+  updated?: number;
+  is_app_user: boolean;
+  has_2fa?: boolean;
+};
+
 export const getSlackAppToken = (): string => {
   const prop = PropertiesService.getScriptProperties();
   const slackAppToken = prop.getProperty("slackAppToken");
@@ -45,46 +115,42 @@ export const getSlackAppToken = (): string => {
 /**
  * This function is called by trigger for sending message to slack.
  *
- * @param {*} event
+ * @param {*} payload
  */
-export const sendMessageToSlack = (event: any): string => {
-  console.log("[sendMessageToSlack]: called", event);
-  if (event) {
-    try {
-      const slackAppToken = getSlackAppToken();
-      if (!slackAppToken) {
-        throw Error(`The value of slackAppToken is null but it should not be.`);
-      }
-      const payload = triggerManager.handleTriggered(event.triggerUid);
-      const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-        method: "post",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${slackAppToken}`,
-        },
-        payload: payload,
-      };
-      const url = "https://slack.com/api/chat.postMessage";
-      const res = UrlFetchApp.fetch(url, options);
-      const resBody = JSON.parse(res.getContentText());
-      if (resBody["ok"]) {
-        return resBody["ts"];
-      } else {
-        return "";
-      }
-    } catch (e) {
-      console.log(e);
+export const sendMessageToSlack = (payload: any): string => {
+  try {
+    const slackAppToken = getSlackAppToken();
+    if (!slackAppToken) {
+      throw Error(`The value of slackAppToken is null but it should not be.`);
     }
+    const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+      method: "post",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${slackAppToken}`,
+      },
+      payload: payload,
+    };
+    const url = "https://slack.com/api/chat.postMessage";
+    const res = UrlFetchApp.fetch(url, options);
+    const resBody = JSON.parse(res.getContentText());
+    if (resBody["ok"]) {
+      return resBody["ts"];
+    } else {
+      return "";
+    }
+  } catch (e) {
+    console.log(e);
   }
   return "";
 };
 
 /**
- *
+ * Get the list of member's id on the Slack chennel.
  * @param {string} channel
  * @return {string[]}
  */
-export const getMembersFromSlackChannel = (channel: string): string[] => {
+export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
   const slackAppToken = getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
@@ -97,10 +163,10 @@ export const getMembersFromSlackChannel = (channel: string): string[] => {
     },
   };
   const results: string[] = [];
-  const baseQueryString = `?channel=${channel}&limit=10`;
+  const baseQueryString = `?channel=${channel}&limit=100`;
   let queryString: string = "";
   let nextCursor: string = "";
-  for (let retryCnt = 0; retryCnt < 5; retryCnt++) {
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       if (nextCursor) {
         queryString = `${baseQueryString}&cursor=${nextCursor}`;
@@ -114,11 +180,11 @@ export const getMembersFromSlackChannel = (channel: string): string[] => {
         return results;
       }
       let existsNewMember = false;
-      for (let member of json["members"]) {
-        if (results.includes(member)) {
+      for (let memberId of json["members"]) {
+        if (results.includes(memberId)) {
           continue;
         }
-        results.push(member);
+        results.push(memberId);
         existsNewMember = true;
       }
       if (
@@ -171,11 +237,11 @@ export const getUserGroups = (): UserGroup[] => {
 };
 
 /**
- * Get members in the UserGroup
+ * Get the list of member's id in the UserGroup
  * @param {string} usergroup - The encoded ID of the User Group
  * @return {string[]}
  */
-export const getMembersInUserGroup = (usergroup: string): string[] => {
+export const getMemberIdsInUserGroup = (usergroup: string): string[] => {
   const slackAppToken = getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
@@ -226,10 +292,10 @@ export const getRepliesFromSlackThread = (
     },
   };
   const results: SlackMessage[] = [];
-  const baseQueryString = `?channel=${channel}&ts=${threadTs}&limit=10`;
+  const baseQueryString = `?channel=${channel}&ts=${threadTs}&limit=100`;
   let queryString: string = "";
   let nextCursor: string = "";
-  for (let retryCnt = 0; retryCnt < 5; retryCnt++) {
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       if (nextCursor) {
         queryString = `${baseQueryString}&cursor=${nextCursor}`;
@@ -245,6 +311,9 @@ export const getRepliesFromSlackThread = (
       let existsNewReply = false;
       for (let reply of json["messages"]) {
         if (reply.thread_ts === reply.ts) {
+          continue;
+        }
+        if (reply.ts === threadTs) {
           continue;
         }
         if (results.some((result) => result.ts === reply.ts)) {
@@ -268,4 +337,190 @@ export const getRepliesFromSlackThread = (
     }
   }
   return results;
+};
+
+/**
+ * Get array of Channel
+ * @return {Channel[]}
+ */
+export const getChannels = (): Channel[] => {
+  const slackAppToken = getSlackAppToken();
+  if (!slackAppToken) {
+    throw Error(`The value of slackAppToken is null but it should not be.`);
+  }
+  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+    method: "get",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${slackAppToken}`,
+    },
+  };
+  const results: Channel[] = [];
+  const baseQueryString = `?exclude_archived=true&types=public_channel%2Cprivate_channel%2Cmpim%2Cim&limit=100`;
+  let queryString: string = "";
+  let nextCursor: string = "";
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      if (nextCursor) {
+        queryString = `${baseQueryString}&cursor=${nextCursor}`;
+      } else {
+        queryString = `${baseQueryString}`;
+      }
+      const url = `https://slack.com/api/conversations.list${queryString}`;
+      const res = UrlFetchApp.fetch(url, options);
+      const json = JSON.parse(res.getContentText());
+      if (!json || !json["ok"]) {
+        return results;
+      }
+      let existsNewChannel = false;
+      for (let channel of json["channels"]) {
+        if (results.some((result) => result.id === channel.id)) {
+          continue;
+        }
+        results.push(channel);
+        existsNewChannel = true;
+      }
+      if (
+        existsNewChannel &&
+        json["response_metadata"] &&
+        json["response_metadata"]["next_cursor"]
+      ) {
+        nextCursor = json["response_metadata"]["next_cursor"];
+      } else {
+        break;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return results;
+};
+
+/**
+ * Convert the channel name to id.
+ * @param {string} name
+ * @param {Channel[]} channels
+ * @return {string}
+ */
+export const convertChannelNameToId = (
+  name: string,
+  channels: Channel[] | undefined
+): string => {
+  if (channels === undefined) {
+    channels = getChannels();
+  }
+  for (let channel of channels) {
+    if (channel.name === name) {
+      return channel.id;
+    }
+  }
+  return name;
+};
+
+/**
+ * Get all members in this Slack team
+ * @return {Member[]}
+ */
+export const getAllMembers = (): Member[] => {
+  const slackAppToken = getSlackAppToken();
+  if (!slackAppToken) {
+    throw Error(`The value of slackAppToken is null but it should not be.`);
+  }
+  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+    method: "get",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${slackAppToken}`,
+    },
+  };
+  const results: Member[] = [];
+  const baseQueryString = `?limit=100`;
+  let queryString: string = "";
+  let nextCursor: string = "";
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      if (nextCursor) {
+        queryString = `${baseQueryString}&cursor=${nextCursor}`;
+      } else {
+        queryString = `${baseQueryString}`;
+      }
+      const url = `https://slack.com/api/users.list${queryString}`;
+      const res = UrlFetchApp.fetch(url, options);
+      const json = JSON.parse(res.getContentText());
+      if (!json || !json["ok"]) {
+        return results;
+      }
+      let existsNewMember = false;
+      for (let member of json["members"]) {
+        if (results.some((result) => result.id === member.id)) {
+          continue;
+        }
+        results.push(member);
+        existsNewMember = true;
+      }
+      if (
+        existsNewMember &&
+        json["response_metadata"] &&
+        json["response_metadata"]["next_cursor"]
+      ) {
+        nextCursor = json["response_metadata"]["next_cursor"];
+      } else {
+        break;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return results;
+};
+
+/**
+ * Get the member
+ * @param {string} memberId
+ * @return {Member|null}
+ */
+export const getMember = (memberId: string): Member | null => {
+  const slackAppToken = getSlackAppToken();
+  if (!slackAppToken) {
+    throw Error(`The value of slackAppToken is null but it should not be.`);
+  }
+  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+    method: "get",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${slackAppToken}`,
+    },
+  };
+  let result: Member | null = null;
+  try {
+    const url = `https://slack.com/api/users.info?user=${memberId}`;
+    const res = UrlFetchApp.fetch(url, options);
+    const json = JSON.parse(res.getContentText());
+    if (!json || !json["ok"]) {
+      return result;
+    }
+    result = json["user"];
+  } catch (e) {
+    console.log(e);
+  }
+  return result;
+};
+
+/**
+ * Is bot user?
+ * @param {string} memberId
+ * @return {boolean}
+ */
+export const isBot = (memberId: string): boolean => {
+  const member = getMember(memberId);
+  if (member) {
+    if (member.id === memberId) {
+      if (member.is_bot) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  return false;
 };

@@ -24,22 +24,17 @@ global.main = (): void => {
   }
   const scheduledMessages = sm.getScheduledMessagesFromSpreadSheet(tomorrow);
   for (const scheduledMessage of scheduledMessages) {
-    if (tomorrow.getFullYear() !== scheduledMessage.date.getFullYear()) {
-      console.log(
-        `${tomorrow.getFullYear()} !== ${scheduledMessage.date.getFullYear()}`
-      );
+    const date = new Date(scheduledMessage.datetime);
+    if (tomorrow.getFullYear() !== date.getFullYear()) {
+      console.log(`${tomorrow.getFullYear()} !== ${date.getFullYear()}`);
       continue;
     }
-    if (tomorrow.getMonth() !== scheduledMessage.date.getMonth()) {
-      console.log(
-        `${tomorrow.getMonth()} !== ${scheduledMessage.date.getMonth()}`
-      );
+    if (tomorrow.getMonth() !== date.getMonth()) {
+      console.log(`${tomorrow.getMonth()} !== ${date.getMonth()}`);
       continue;
     }
-    if (tomorrow.getDate() !== scheduledMessage.date.getDate()) {
-      console.log(
-        `${tomorrow.getDate()} !== ${scheduledMessage.date.getDate()}`
-      );
+    if (tomorrow.getDate() !== date.getDate()) {
+      console.log(`${tomorrow.getDate()} !== ${date.getDate()}`);
       continue;
     }
     reminder.setReminder(scheduledMessage);

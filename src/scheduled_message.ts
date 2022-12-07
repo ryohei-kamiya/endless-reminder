@@ -1,13 +1,31 @@
 import * as sheets from "./sheets";
 import * as calendar from "./calendar";
+import * as slack from "./slack";
 
 export type ScheduledMessage = {
-  date: Date;
+  datetime: number;
   channel: string;
   sendTo: string[];
   message: string;
   renotice: string;
   threadTs: string | null;
+};
+
+/**
+ * Convert the string representation of recerivers to array.
+ * @param {string} sendToStr - string representation of recerivers
+ * @return {string[]}
+ */
+export const convertReceiverStringToArray = (sendToStr: string): string[] => {
+  const sendTo = [];
+  if (sendToStr) {
+    sendToStr = sendToStr.replace(/[\!@,<> ]+/g, " ").trim();
+    const members = sendToStr.split(" ").map((member) => member.trim());
+    for (let member of members) {
+      sendTo.push(member);
+    }
+  }
+  return sendTo;
 };
 
 /**
@@ -21,6 +39,7 @@ export const getScheduledMessagesFromSpreadSheet = (
   const results: ScheduledMessage[] = [];
   const now = new Date();
   const calenderIds = calendar.getCalendarIds();
+  const channels: slack.Channel[] = slack.getChannels();
   const _mainSheet = sheets.mainSheet();
   if (!_mainSheet) {
     throw Error(`The value of mainSheet is null but it should not be.`);
@@ -54,16 +73,9 @@ export const getScheduledMessagesFromSpreadSheet = (
     }
     // get the channel(id or name) to send message(column number === 5) from mainSheet
     const channel = _mainSheet.getRange(i, 5).getValue();
-    // get the message(column number === 6) from mainSheet
+    // get the receivers(column number === 6) from mainSheet
     let sendToStr = String(_mainSheet.getRange(i, 6).getValue());
-    const sendTo = [];
-    if (sendToStr) {
-      sendToStr = sendToStr.replace(/[\!@,<> ]+/g, " ").trim();
-      const members = sendToStr.split(" ").map((member) => member.trim());
-      for (let member of members) {
-        sendTo.push(member);
-      }
-    }
+    const sendTo = convertReceiverStringToArray(sendToStr);
     // get the message(column number === 7) from mainSheet
     const message = _mainSheet.getRange(i, 7).getValue();
     // get the re-notice message(column number === 8) from mainSheet
@@ -82,8 +94,8 @@ export const getScheduledMessagesFromSpreadSheet = (
           }
           calendar.updateDateByTimeString(date, t);
           results.push({
-            date: date,
-            channel: channel,
+            datetime: date.getTime(),
+            channel: slack.convertChannelNameToId(channel, channels),
             sendTo: sendTo,
             message: message,
             renotice: renotice,
@@ -99,8 +111,8 @@ export const getScheduledMessagesFromSpreadSheet = (
         );
         calendar.updateDateByTimeString(date, t);
         results.push({
-          date: date,
-          channel: channel,
+          datetime: date.getTime(),
+          channel: slack.convertChannelNameToId(channel, channels),
           sendTo: sendTo,
           message: message,
           renotice: renotice,
