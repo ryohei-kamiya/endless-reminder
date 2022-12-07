@@ -1,10 +1,13 @@
 import * as sheets from "./sheets";
 import * as calendar from "./calendar";
 
-type ScheduledMessage = {
+export type ScheduledMessage = {
   date: Date;
   channel: string;
+  sendTo: string[];
   message: string;
+  renotice: string;
+  threadTs: string | null;
 };
 
 /**
@@ -49,11 +52,22 @@ export const getScheduledMessagesFromSpreadSheet = (
     } else {
       t = String(col4);
     }
-    console.log(t);
     // get the channel(id or name) to send message(column number === 5) from mainSheet
     const channel = _mainSheet.getRange(i, 5).getValue();
     // get the message(column number === 6) from mainSheet
-    const message = _mainSheet.getRange(i, 6).getValue();
+    let sendToStr = String(_mainSheet.getRange(i, 6).getValue());
+    const sendTo = [];
+    if (sendToStr) {
+      sendToStr = sendToStr.replace(/[\!@,<> ]+/g, " ").trim();
+      const members = sendToStr.split(" ").map((member) => member.trim());
+      for (let member of members) {
+        sendTo.push(member);
+      }
+    }
+    // get the message(column number === 7) from mainSheet
+    const message = _mainSheet.getRange(i, 7).getValue();
+    // get the re-notice message(column number === 8) from mainSheet
+    const renotice = _mainSheet.getRange(i, 8).getValue();
     for (let j = 0; j < months.length; j++) {
       if (argDate) {
         if (argDate.getMonth() + 1 === months[j]) {
@@ -70,7 +84,10 @@ export const getScheduledMessagesFromSpreadSheet = (
           results.push({
             date: date,
             channel: channel,
+            sendTo: sendTo,
             message: message,
+            renotice: renotice,
+            threadTs: null,
           });
         }
       } else {
@@ -84,7 +101,10 @@ export const getScheduledMessagesFromSpreadSheet = (
         results.push({
           date: date,
           channel: channel,
+          sendTo: sendTo,
           message: message,
+          renotice: renotice,
+          threadTs: null,
         });
       }
     }

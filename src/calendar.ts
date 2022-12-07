@@ -56,11 +56,8 @@ export const getCalendarIds = (): string[] => {
     );
   }
   const lastRow = holidayCalendarsSheet.getLastRow();
-  for (let i = 1; i <= lastRow; i++) {
+  for (let i = 2; i <= lastRow; i++) {
     const calenderId = holidayCalendarsSheet.getRange(i, 1).getValue();
-    if (calenderId === "calendar id") {
-      continue;
-    }
     results.push(calenderId);
   }
   return results;
@@ -152,6 +149,27 @@ export const convertBusinessDaysToDate = (
       }
       businessDays--;
     }
+  }
+  return result;
+};
+
+/**
+ * Get a next working day
+ * @param {Date} argDate
+ * @param {string[]} calendarIds
+ * @return {Date}
+ */
+export const getNextWorkingDay = (
+  argDate: Date,
+  calendarIds: string[] | undefined = undefined
+): Date => {
+  const result = new Date(argDate);
+  result.setDate(result.getDate() + 1);
+  if (calendarIds === undefined) {
+    calendarIds = getCalendarIds();
+  }
+  while (isHoliday(result, calendarIds)) {
+    result.setDate(result.getDate() + 1);
   }
   return result;
 };

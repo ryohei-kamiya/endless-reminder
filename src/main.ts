@@ -1,6 +1,6 @@
-import * as slack from "./slack";
 import * as calendar from "./calendar";
-import * as scheduledMessage from "./scheduled_message";
+import * as sm from "./scheduled_message";
+import * as reminder from "./reminder";
 
 declare let global: any;
 
@@ -22,34 +22,26 @@ global.main = (): void => {
     console.log("tomorrow is a holiday.");
     return;
   }
-  const _scheduledMessages =
-    scheduledMessage.getScheduledMessagesFromSpreadSheet(tomorrow);
-  for (const _scheduledMessage of _scheduledMessages) {
-    if (tomorrow.getFullYear() !== _scheduledMessage.date.getFullYear()) {
+  const scheduledMessages = sm.getScheduledMessagesFromSpreadSheet(tomorrow);
+  for (const scheduledMessage of scheduledMessages) {
+    if (tomorrow.getFullYear() !== scheduledMessage.date.getFullYear()) {
       console.log(
-        `${tomorrow.getFullYear()} !== ${_scheduledMessage.date.getFullYear()}`
+        `${tomorrow.getFullYear()} !== ${scheduledMessage.date.getFullYear()}`
       );
       continue;
     }
-    if (tomorrow.getMonth() !== _scheduledMessage.date.getMonth()) {
+    if (tomorrow.getMonth() !== scheduledMessage.date.getMonth()) {
       console.log(
-        `${tomorrow.getMonth()} !== ${_scheduledMessage.date.getMonth()}`
+        `${tomorrow.getMonth()} !== ${scheduledMessage.date.getMonth()}`
       );
       continue;
     }
-    if (tomorrow.getDate() !== _scheduledMessage.date.getDate()) {
+    if (tomorrow.getDate() !== scheduledMessage.date.getDate()) {
       console.log(
-        `${tomorrow.getDate()} !== ${_scheduledMessage.date.getDate()}`
+        `${tomorrow.getDate()} !== ${scheduledMessage.date.getDate()}`
       );
       continue;
     }
-    const payload = {
-      channel: _scheduledMessage.channel,
-      text: _scheduledMessage.message,
-      icon_emoji: ":spiral_calendar_pad:",
-      username: "reminder",
-    };
-    // Set the trigger the day before.
-    slack.setTriggerOfSendMessageToSlack(_scheduledMessage.date, payload);
+    reminder.setReminder(scheduledMessage);
   }
 };
