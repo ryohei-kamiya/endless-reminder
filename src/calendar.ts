@@ -31,7 +31,7 @@ export const updateDateByTimeString = (date: Date, timeStr: string): void => {
   const hms = timeStr
     .split(":")
     .map((t) => Number(t))
-    .filter(Boolean);
+    .filter((value) => typeof value === "number");
   if (hms.length > 0) {
     date.setHours(hms[0]);
   }
