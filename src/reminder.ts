@@ -136,16 +136,18 @@ global.remind = (event: any) => {
       const notFoundMemberIds: string[] = [];
       for (let memberId of scheduledMessage.sendTo) {
         if (!channelMemberIds.includes(memberId)) {
-          notFoundMemberIds.push(memberId);
+          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
         } else {
           sendTo.push(memberId);
         }
       }
       if (notFoundMemberIds.length > 0) {
         const userGroups = slack.getUserGroups();
-        for (let notFoundMember of notFoundMemberIds) {
+        for (let notFoundMemberId of notFoundMemberIds) {
           const filteredUserGroups = userGroups.filter(
-            (element) => element.handle === notFoundMember
+            (element) =>
+              element.id === notFoundMemberId ||
+              element.handle === notFoundMemberId
           );
           if (filteredUserGroups.length > 0) {
             const userGroup = filteredUserGroups[0];
@@ -171,41 +173,43 @@ global.remind = (event: any) => {
     scheduledMessage.datetime = date.getTime();
     setReminder(scheduledMessage);
   } else {
-    const replies = slack.getRepliesFromSlackThread(
-      scheduledMessage.channel,
-      scheduledMessage.threadTs
-    );
-    const completionKeywords = getCompletionKeywords();
-    const sendTo = [];
-    for (let memberId of scheduledMessage.sendTo) {
-      if (
-        !isMemberInCompletionMessageSenders(
-          memberId,
-          replies,
-          completionKeywords
-        )
-      ) {
-        sendTo.push(memberId);
-      }
-    }
-    if (sendTo.length > 0) {
-      scheduledMessage.sendTo = sendTo;
-      const payload = {
-        channel: scheduledMessage.channel,
-        thread_ts: scheduledMessage.threadTs,
-        text: getActualMessageToSlack(
-          scheduledMessage.sendTo,
-          scheduledMessage.renotice
-        ),
-        icon_emoji: ":spiral_calendar_pad:",
-        username: "reminder",
-      };
-      slack.sendMessageToSlack(payload);
-      const date = calendar.getNextWorkingDay(
-        new Date(scheduledMessage.datetime)
+    if (scheduledMessage.renotice) {
+      const replies = slack.getRepliesFromSlackThread(
+        scheduledMessage.channel,
+        scheduledMessage.threadTs
       );
-      scheduledMessage.datetime = date.getTime();
-      setReminder(scheduledMessage);
+      const completionKeywords = getCompletionKeywords();
+      const sendTo = [];
+      for (let memberId of scheduledMessage.sendTo) {
+        if (
+          !isMemberInCompletionMessageSenders(
+            memberId,
+            replies,
+            completionKeywords
+          )
+        ) {
+          sendTo.push(memberId);
+        }
+      }
+      if (sendTo.length > 0) {
+        scheduledMessage.sendTo = sendTo;
+        const payload = {
+          channel: scheduledMessage.channel,
+          thread_ts: scheduledMessage.threadTs,
+          text: getActualMessageToSlack(
+            scheduledMessage.sendTo,
+            scheduledMessage.renotice
+          ),
+          icon_emoji: ":spiral_calendar_pad:",
+          username: "reminder",
+        };
+        slack.sendMessageToSlack(payload);
+        const date = calendar.getNextWorkingDay(
+          new Date(scheduledMessage.datetime)
+        );
+        scheduledMessage.datetime = date.getTime();
+        setReminder(scheduledMessage);
+      }
     }
   }
 };
