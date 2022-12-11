@@ -22,7 +22,7 @@ global.main = (): void => {
     console.log("tomorrow is a holiday.");
     return;
   }
-  const scheduledMessages = sm.getScheduledMessagesFromSpreadSheet(tomorrow);
+  const scheduledMessages = sm.getScheduledMessages(tomorrow);
   for (const scheduledMessage of scheduledMessages) {
     const date = new Date(scheduledMessage.datetime);
     if (tomorrow.getFullYear() !== date.getFullYear()) {
