@@ -6,6 +6,7 @@ export type ScheduledMessage = {
   datetime: number;
   channel: string;
   sendTo: string[];
+  notSendTo: string[];
   message: string;
   renotice: string;
   threadTs: string | null;
@@ -80,6 +81,9 @@ export const getScheduledMessagesFromSpreadSheet = (
     // get the receivers from mainSheet
     let sendToStr = String(_mainSheet.getRange(i, cols++).getValue());
     const sendTo = convertReceiverStringToArray(sendToStr);
+    // get the excepted receivers from mainSheet
+    let notSendToStr = String(_mainSheet.getRange(i, cols++).getValue());
+    const notSendTo = convertReceiverStringToArray(notSendToStr);
     // get the message from mainSheet
     const message = _mainSheet.getRange(i, cols++).getValue();
     // get the re-notice message from mainSheet
@@ -107,6 +111,7 @@ export const getScheduledMessagesFromSpreadSheet = (
             datetime: date.getTime(),
             channel: slack.convertChannelNameToId(channel, channels),
             sendTo: sendTo,
+            notSendTo: notSendTo,
             message: message,
             renotice: renotice,
             threadTs: null,
@@ -127,6 +132,7 @@ export const getScheduledMessagesFromSpreadSheet = (
             datetime: date.getTime(),
             channel: slack.convertChannelNameToId(channel, channels),
             sendTo: sendTo,
+            notSendTo: notSendTo,
             message: message,
             renotice: renotice,
             threadTs: null,

@@ -105,6 +105,36 @@ export const isMemberInCompletionMessageSenders = (
   return false;
 };
 
+/**
+ * Get the array of member's id in any one of allUserGroups.
+ * @param {string[]} targetUserGroupIds
+ * @param {slack.UserGroup[]} allUserGroups
+ */
+export const getMemberIdsInUserGroups = (
+  targetUserGroupIds: string[],
+  allUserGroups: slack.UserGroup[]
+) => {
+  const results: string[] = [];
+  for (let userGroupId of targetUserGroupIds) {
+    const filteredUserGroups = allUserGroups.filter(
+      (element) => element.id === userGroupId || element.handle === userGroupId
+    );
+    if (filteredUserGroups.length > 0) {
+      const userGroup = filteredUserGroups[0];
+      const memberIdsInUserGroup = slack.getMemberIdsInUserGroup(userGroup.id);
+      for (let memberIdInUG of memberIdsInUserGroup) {
+        if (slack.isBot(memberIdInUG)) {
+          continue;
+        }
+        if (!results.includes(memberIdInUG)) {
+          results.push(memberIdInUG);
+        }
+      }
+    }
+  }
+  return results;
+};
+
 global.remind = (event: any) => {
   const scheduledMessage: sm.ScheduledMessage = triggerManager.handleTriggered(
     event.triggerUid
@@ -120,48 +150,69 @@ global.remind = (event: any) => {
       username: "reminder",
     };
     scheduledMessage.threadTs = slack.sendMessageToSlack(payload);
+
     const channelMemberIds = slack.getMemberIdsOnSlackChannel(
       scheduledMessage.channel
     );
+
+    const notSendTo: string[] = [];
+    if (
+      scheduledMessage.notSendTo.some(
+        (memberId) => memberId === "channel" || memberId == "here"
+      )
+    ) {
+      scheduledMessage.notSendTo = channelMemberIds;
+    } else {
+      const notFoundMemberIds: string[] = [];
+      for (let memberId of scheduledMessage.notSendTo) {
+        if (channelMemberIds.includes(memberId)) {
+          notSendTo.push(memberId);
+        } else {
+          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+        }
+      }
+      if (notFoundMemberIds.length > 0) {
+        const userGroups = slack.getUserGroups();
+        for (let memberId of getMemberIdsInUserGroups(
+          notFoundMemberIds,
+          userGroups
+        )) {
+          notSendTo.push(memberId);
+        }
+      }
+      scheduledMessage.notSendTo = notSendTo;
+    }
+
     if (
       scheduledMessage.sendTo.some(
         (memberId) => memberId === "channel" || memberId === "here"
       )
     ) {
       scheduledMessage.sendTo = channelMemberIds.filter(
-        (memberId) => !slack.isBot(memberId)
+        (memberId) =>
+          !slack.isBot(memberId) &&
+          !scheduledMessage.notSendTo.includes(memberId)
       );
     } else {
       const sendTo = [];
       const notFoundMemberIds: string[] = [];
       for (let memberId of scheduledMessage.sendTo) {
-        if (!channelMemberIds.includes(memberId)) {
-          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+        if (channelMemberIds.includes(memberId)) {
+          if (!scheduledMessage.notSendTo.includes(memberId)) {
+            sendTo.push(memberId);
+          }
         } else {
-          sendTo.push(memberId);
+          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
         }
       }
       if (notFoundMemberIds.length > 0) {
         const userGroups = slack.getUserGroups();
-        for (let notFoundMemberId of notFoundMemberIds) {
-          const filteredUserGroups = userGroups.filter(
-            (element) =>
-              element.id === notFoundMemberId ||
-              element.handle === notFoundMemberId
-          );
-          if (filteredUserGroups.length > 0) {
-            const userGroup = filteredUserGroups[0];
-            const memberIdsInUserGroup = slack.getMemberIdsInUserGroup(
-              userGroup.id
-            );
-            for (let memberId of memberIdsInUserGroup) {
-              if (slack.isBot(memberId)) {
-                continue;
-              }
-              if (!sendTo.includes(memberId)) {
-                sendTo.push(memberId);
-              }
-            }
+        for (let memberId of getMemberIdsInUserGroups(
+          notFoundMemberIds,
+          userGroups
+        )) {
+          if (!scheduledMessage.notSendTo.includes(memberId)) {
+            sendTo.push(memberId);
           }
         }
       }
