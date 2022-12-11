@@ -58,9 +58,9 @@ export const getCompletionKeywords = (): string[] => {
       `The value of completionKeywordsSheet is null but it should not be.`
     );
   }
-  const lastRow = completionKeywordsSheet.getLastRow();
-  for (let i = 2; i <= lastRow; i++) {
-    const keyword = completionKeywordsSheet.getRange(i, 1).getValue();
+  const allData = sheets.getNonEmptyValues(completionKeywordsSheet);
+  for (let row = 1; row < allData.length; row++) {
+    const keyword = allData[row][0];
     results.push(keyword);
   }
   return results;

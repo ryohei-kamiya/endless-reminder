@@ -45,13 +45,11 @@ export const getScheduledMessages = (
   if (!_mainSheet) {
     throw Error(`The value of mainSheet is null but it should not be.`);
   }
-  const lastRow = _mainSheet.getLastRow();
-  for (let i = 1; i <= lastRow; i++) {
-    let cols = 1;
+  const allData = sheets.getNonEmptyValues(_mainSheet);
+  for (let row = 1; row < allData.length; row++) {
+    let col = 0;
     // get a scheduled message id from mainSheet
-    const scheduledMessageId = Number(
-      _mainSheet.getRange(i, cols++).getValue()
-    );
+    const scheduledMessageId = Number(allData[row][col++]);
     if (scheduledMessageId < 1) {
       break;
     }
@@ -59,17 +57,13 @@ export const getScheduledMessages = (
       continue;
     }
     // get years from mainSheet
-    const years = calendar.parseYearsString(
-      String(_mainSheet.getRange(i, cols++).getValue())
-    );
+    const years = calendar.parseYearsString(String(allData[row][col++]));
     // get months from mainSheet
-    const months = calendar.parseMonthsString(
-      String(_mainSheet.getRange(i, cols++).getValue())
-    );
+    const months = calendar.parseMonthsString(String(allData[row][col++]));
     // get number of business days from the beginning of the month from mainSheet
-    const numOfBizDays = _mainSheet.getRange(i, cols++).getValue();
+    const numOfBizDays = Number(allData[row][col++]);
     // get the scheduled message sending time from mainSheet
-    const time = _mainSheet.getRange(i, cols++).getValue();
+    const time = allData[row][col++];
     let t = "";
     if (time instanceof Date) {
       const hour = ("00" + time.getHours()).slice(-2);
@@ -80,16 +74,16 @@ export const getScheduledMessages = (
       t = String(time);
     }
     // get the channel(id or name) to send message from mainSheet
-    const channel = _mainSheet.getRange(i, cols++).getValue();
+    const channel = String(allData[row][col++]);
     // get the receivers from mainSheet
-    let sendToStr = String(_mainSheet.getRange(i, cols++).getValue());
+    let sendToStr = String(allData[row][col++]);
     const sendTo = convertReceiverStringToArray(sendToStr);
     // get the message from mainSheet
-    const message = _mainSheet.getRange(i, cols++).getValue();
+    const message = String(allData[row][col++]);
     // get the re-notice message from mainSheet
-    const renotice = _mainSheet.getRange(i, cols++).getValue();
+    const renotice = String(allData[row][col++]);
     // get the excepted receivers from mainSheet
-    let notRenoticeToStr = String(_mainSheet.getRange(i, cols++).getValue());
+    let notRenoticeToStr = String(allData[row][col++]);
     const notRenoticeTo = convertReceiverStringToArray(notRenoticeToStr);
     if (argDate) {
       for (let j = 0; j < years.length; j++) {
@@ -162,13 +156,11 @@ export const getScheduledMessagesById = (id: number): ScheduledMessage[] => {
   if (!_mainSheet) {
     throw Error(`The value of mainSheet is null but it should not be.`);
   }
-  const lastRow = _mainSheet.getLastRow();
-  for (let i = 1; i <= lastRow; i++) {
-    let cols = 1;
+  const allData = sheets.getNonEmptyValues(_mainSheet);
+  for (let row = 1; row < allData.length; row++) {
+    let col = 0;
     // get a scheduled message id from mainSheet
-    const scheduledMessageId = Number(
-      _mainSheet.getRange(i, cols++).getValue()
-    );
+    const scheduledMessageId = Number(allData[row][col++]);
     if (scheduledMessageId < 1) {
       break;
     }
@@ -179,17 +171,13 @@ export const getScheduledMessagesById = (id: number): ScheduledMessage[] => {
       continue;
     }
     // get years from mainSheet
-    const years = calendar.parseYearsString(
-      String(_mainSheet.getRange(i, cols++).getValue())
-    );
+    const years = calendar.parseYearsString(String(allData[row][col++]));
     // get months from mainSheet
-    const months = calendar.parseMonthsString(
-      String(_mainSheet.getRange(i, cols++).getValue())
-    );
+    const months = calendar.parseMonthsString(String(allData[row][col++]));
     // get number of business days from the beginning of the month from mainSheet
-    const numOfBizDays = _mainSheet.getRange(i, cols++).getValue();
+    const numOfBizDays = Number(allData[row][col++]);
     // get the scheduled message sending time from mainSheet
-    const time = _mainSheet.getRange(i, cols++).getValue();
+    const time = allData[row][col++];
     let t = "";
     if (time instanceof Date) {
       const hour = ("00" + time.getHours()).slice(-2);
@@ -200,16 +188,16 @@ export const getScheduledMessagesById = (id: number): ScheduledMessage[] => {
       t = String(time);
     }
     // get the channel(id or name) to send message from mainSheet
-    const channel = _mainSheet.getRange(i, cols++).getValue();
+    const channel = String(allData[row][col++]);
     // get the receivers from mainSheet
-    let sendToStr = String(_mainSheet.getRange(i, cols++).getValue());
+    let sendToStr = String(allData[row][col++]);
     const sendTo = convertReceiverStringToArray(sendToStr);
     // get the message from mainSheet
-    const message = _mainSheet.getRange(i, cols++).getValue();
+    const message = String(allData[row][col++]);
     // get the re-notice message from mainSheet
-    const renotice = _mainSheet.getRange(i, cols++).getValue();
+    const renotice = String(allData[row][col++]);
     // get the excepted receivers from mainSheet
-    let notRenoticeToStr = String(_mainSheet.getRange(i, cols++).getValue());
+    let notRenoticeToStr = String(allData[row][col++]);
     const notRenoticeTo = convertReceiverStringToArray(notRenoticeToStr);
     for (let j = 0; j < years.length; j++) {
       for (let k = 0; k < months.length; k++) {

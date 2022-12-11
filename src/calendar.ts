@@ -75,9 +75,9 @@ export const getCalendarIds = (): string[] => {
       `The value of holidayCalendarsSheet is null but it should not be.`
     );
   }
-  const lastRow = holidayCalendarsSheet.getLastRow();
-  for (let i = 2; i <= lastRow; i++) {
-    const calenderId = holidayCalendarsSheet.getRange(i, 1).getValue();
+  const allData = sheets.getNonEmptyValues(holidayCalendarsSheet);
+  for (let row = 1; row < allData.length; row++) {
+    const calenderId = allData[row][0];
     results.push(calenderId);
   }
   return results;
