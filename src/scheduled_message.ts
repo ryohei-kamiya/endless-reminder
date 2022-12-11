@@ -6,9 +6,9 @@ export type ScheduledMessage = {
   datetime: number;
   channel: string;
   sendTo: string[];
-  notSendTo: string[];
   message: string;
   renotice: string;
+  notRenoticeTo: string[];
   threadTs: string | null;
 };
 
@@ -81,13 +81,13 @@ export const getScheduledMessagesFromSpreadSheet = (
     // get the receivers from mainSheet
     let sendToStr = String(_mainSheet.getRange(i, cols++).getValue());
     const sendTo = convertReceiverStringToArray(sendToStr);
-    // get the excepted receivers from mainSheet
-    let notSendToStr = String(_mainSheet.getRange(i, cols++).getValue());
-    const notSendTo = convertReceiverStringToArray(notSendToStr);
     // get the message from mainSheet
     const message = _mainSheet.getRange(i, cols++).getValue();
     // get the re-notice message from mainSheet
     const renotice = _mainSheet.getRange(i, cols++).getValue();
+    // get the excepted receivers from mainSheet
+    let notRenoticeToStr = String(_mainSheet.getRange(i, cols++).getValue());
+    const notRenoticeTo = convertReceiverStringToArray(notRenoticeToStr);
     if (argDate) {
       for (let j = 0; j < years.length; j++) {
         if (argDate.getFullYear() !== years[j]) {
@@ -111,9 +111,9 @@ export const getScheduledMessagesFromSpreadSheet = (
             datetime: date.getTime(),
             channel: slack.convertChannelNameToId(channel, channels),
             sendTo: sendTo,
-            notSendTo: notSendTo,
             message: message,
             renotice: renotice,
+            notRenoticeTo: notRenoticeTo,
             threadTs: null,
           });
         }
@@ -132,9 +132,9 @@ export const getScheduledMessagesFromSpreadSheet = (
             datetime: date.getTime(),
             channel: slack.convertChannelNameToId(channel, channels),
             sendTo: sendTo,
-            notSendTo: notSendTo,
             message: message,
             renotice: renotice,
+            notRenoticeTo: notRenoticeTo,
             threadTs: null,
           });
         }

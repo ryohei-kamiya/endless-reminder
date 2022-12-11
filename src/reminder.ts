@@ -155,18 +155,18 @@ global.remind = (event: any) => {
       scheduledMessage.channel
     );
 
-    const notSendTo: string[] = [];
+    const notRenoticeTo: string[] = [];
     if (
-      scheduledMessage.notSendTo.some(
+      scheduledMessage.notRenoticeTo.some(
         (memberId) => memberId === "channel" || memberId == "here"
       )
     ) {
-      scheduledMessage.notSendTo = channelMemberIds;
+      scheduledMessage.notRenoticeTo = channelMemberIds;
     } else {
       const notFoundMemberIds: string[] = [];
-      for (let memberId of scheduledMessage.notSendTo) {
+      for (let memberId of scheduledMessage.notRenoticeTo) {
         if (channelMemberIds.includes(memberId)) {
-          notSendTo.push(memberId);
+          notRenoticeTo.push(memberId);
         } else {
           notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
         }
@@ -177,10 +177,10 @@ global.remind = (event: any) => {
           notFoundMemberIds,
           userGroups
         )) {
-          notSendTo.push(memberId);
+          notRenoticeTo.push(memberId);
         }
       }
-      scheduledMessage.notSendTo = notSendTo;
+      scheduledMessage.notRenoticeTo = notRenoticeTo;
     }
 
     if (
@@ -191,14 +191,14 @@ global.remind = (event: any) => {
       scheduledMessage.sendTo = channelMemberIds.filter(
         (memberId) =>
           !slack.isBot(memberId) &&
-          !scheduledMessage.notSendTo.includes(memberId)
+          !scheduledMessage.notRenoticeTo.includes(memberId)
       );
     } else {
       const sendTo = [];
       const notFoundMemberIds: string[] = [];
       for (let memberId of scheduledMessage.sendTo) {
         if (channelMemberIds.includes(memberId)) {
-          if (!scheduledMessage.notSendTo.includes(memberId)) {
+          if (!scheduledMessage.notRenoticeTo.includes(memberId)) {
             sendTo.push(memberId);
           }
         } else {
@@ -211,7 +211,7 @@ global.remind = (event: any) => {
           notFoundMemberIds,
           userGroups
         )) {
-          if (!scheduledMessage.notSendTo.includes(memberId)) {
+          if (!scheduledMessage.notRenoticeTo.includes(memberId)) {
             sendTo.push(memberId);
           }
         }
