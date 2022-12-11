@@ -10,6 +10,7 @@ export type ScheduledMessage = {
   message: string;
   renotice: string;
   notRenoticeTo: string[];
+  disabled: boolean;
   threadTs: string | null;
 };
 
@@ -85,6 +86,8 @@ export const getScheduledMessages = (
     // get the excepted receivers from mainSheet
     let notRenoticeToStr = String(allData[row][col++]);
     const notRenoticeTo = convertReceiverStringToArray(notRenoticeToStr);
+    // get the disabled flag from mainSheet
+    const disabled = Boolean(allData[row][col++]);
     if (argDate) {
       for (let j = 0; j < years.length; j++) {
         if (argDate.getFullYear() !== years[j]) {
@@ -112,6 +115,7 @@ export const getScheduledMessages = (
             message: message,
             renotice: renotice,
             notRenoticeTo: notRenoticeTo,
+            disabled: disabled,
             threadTs: null,
           });
         }
@@ -134,6 +138,7 @@ export const getScheduledMessages = (
             message: message,
             renotice: renotice,
             notRenoticeTo: notRenoticeTo,
+            disabled: disabled,
             threadTs: null,
           });
         }
@@ -199,6 +204,8 @@ export const getScheduledMessagesById = (id: number): ScheduledMessage[] => {
     // get the excepted receivers from mainSheet
     let notRenoticeToStr = String(allData[row][col++]);
     const notRenoticeTo = convertReceiverStringToArray(notRenoticeToStr);
+    // get the disabled flag from mainSheet
+    const disabled = Boolean(allData[row][col++]);
     for (let j = 0; j < years.length; j++) {
       for (let k = 0; k < months.length; k++) {
         const date: Date = calendar.convertBusinessDaysToDate(
@@ -216,6 +223,7 @@ export const getScheduledMessagesById = (id: number): ScheduledMessage[] => {
           message: message,
           renotice: renotice,
           notRenoticeTo: notRenoticeTo,
+          disabled: disabled,
           threadTs: null,
         });
       }

@@ -140,6 +140,9 @@ global.remind = (event: any) => {
     event.triggerUid
   );
   if (scheduledMessage.threadTs === null) {
+    if (scheduledMessage.disabled) {
+      return;
+    }
     const payload = {
       channel: scheduledMessage.channel,
       text: getActualMessageToSlack(
@@ -228,7 +231,10 @@ global.remind = (event: any) => {
       scheduledMessage.id
     );
     if (updatedScheduledMessages.length > 0) {
-      if (updatedScheduledMessages[0].renotice) {
+      if (
+        !updatedScheduledMessages[0].disabled &&
+        updatedScheduledMessages[0].renotice
+      ) {
         scheduledMessage.renotice = updatedScheduledMessages[0].renotice;
         scheduledMessage.notRenoticeTo =
           updatedScheduledMessages[0].notRenoticeTo;

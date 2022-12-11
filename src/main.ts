@@ -37,6 +37,8 @@ global.main = (): void => {
       console.log(`${tomorrow.getDate()} !== ${date.getDate()}`);
       continue;
     }
-    reminder.setReminder(scheduledMessage);
+    if (!scheduledMessage.disabled) {
+      reminder.setReminder(scheduledMessage);
+    }
   }
 };
