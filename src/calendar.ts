@@ -1,6 +1,26 @@
 import * as sheets from "./sheets";
 
 /**
+ * Parse years from string to number array
+ * @param {string} yearsStr - comma separated years or "*"(=all months)
+ * @returns
+ */
+export const parseYearsString = (yearsStr: string): number[] => {
+  if (!yearsStr) {
+    return [];
+  }
+  if (yearsStr.indexOf("*") !== -1) {
+    const now = new Date();
+    return [now.getFullYear(), now.getFullYear() + 1];
+  } else {
+    return yearsStr
+      .split(",")
+      .map((nStr) => Number(nStr))
+      .filter(Boolean);
+  }
+};
+
+/**
  * Parse months from string to number array
  * @param {string} monthsStr - comma separated months or "*"(=all months)
  * @returns
