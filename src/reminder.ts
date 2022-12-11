@@ -224,11 +224,14 @@ global.remind = (event: any) => {
     scheduledMessage.datetime = date.getTime();
     setReminder(scheduledMessage);
   } else {
-    if (scheduledMessage.renotice) {
-      const updatedScheduledMessages = sm.getScheduledMessagesById(
-        scheduledMessage.id
-      );
-      if (updatedScheduledMessages.length > 0) {
+    const updatedScheduledMessages = sm.getScheduledMessagesById(
+      scheduledMessage.id
+    );
+    if (updatedScheduledMessages.length > 0) {
+      if (updatedScheduledMessages[0].renotice) {
+        scheduledMessage.renotice = updatedScheduledMessages[0].renotice;
+        scheduledMessage.notRenoticeTo =
+          updatedScheduledMessages[0].notRenoticeTo;
         const replies = slack.getRepliesFromSlackThread(
           scheduledMessage.channel,
           scheduledMessage.threadTs
