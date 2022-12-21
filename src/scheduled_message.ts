@@ -214,41 +214,6 @@ export const getScheduledMessages = (
 };
 
 /**
- * Get a scheduled message by id
- * @param {number} id - scheduled message id
- * @returns {ScheduledMessage[]} - Scheduled messages
- */
-export const getScheduledMessagesById = (id: number): ScheduledMessage[] => {
-  let results: ScheduledMessage[] = [];
-  const calendarIds = calendar.getCalendarIds();
-  const channels: slack.Channel[] = slack.getChannels();
-  const _mainSheet = sheets.mainSheet();
-  if (!_mainSheet) {
-    throw Error(`The value of mainSheet is null but it should not be.`);
-  }
-  const tableData = sheets.getTableData(_mainSheet);
-  for (let row = 1; row < tableData.getRows(); row++) {
-    const record = getScheduledMessageRecord(tableData, row);
-    if (!Number.isInteger(record.id)) {
-      continue;
-    }
-    if (record.id < 1) {
-      continue;
-    }
-    if (id !== record.id) {
-      continue;
-    }
-    const messages: ScheduledMessage[] = convertRecordToMessages(
-      record,
-      calendarIds,
-      channels
-    );
-    results = results.concat(messages);
-  }
-  return results;
-};
-
-/**
  * Update a scheduled message
  * @param {ScheduledMessage} message - a scheduled message
  * @returns {ScheduledMessage} - an updated scheduled message
