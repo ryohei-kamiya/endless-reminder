@@ -55,6 +55,32 @@ const testTableData: TableData = new TableData([
     "dummy_user_id1, dummy_user_id2, <@dummy_user_id3>",
     "",
   ],
+  [
+    5,
+    "",
+    "*",
+    5,
+    mockDate,
+    "random",
+    "<!channel>",
+    "Hello world!",
+    "Hello world again!",
+    "<@dummy_user_id1>",
+    false,
+  ],
+  [
+    6,
+    "*",
+    "",
+    6,
+    mockDate,
+    "random",
+    "<!channel>",
+    "Hello world!",
+    "Hello world again!",
+    "<@dummy_user_id1>",
+    false,
+  ],
 ]);
 
 const trueRecord1: sm.ScheduledMessageRecord = {
@@ -113,6 +139,34 @@ const trueRecord4: sm.ScheduledMessageRecord = {
   disabled: false,
 };
 
+const trueRecord5: sm.ScheduledMessageRecord = {
+  id: 5,
+  years: [],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  numOfBizDays: 5,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord6: sm.ScheduledMessageRecord = {
+  id: 6,
+  years: [2022, 2023],
+  months: [],
+  numOfBizDays: 6,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
 beforeAll(() => {
   jest.useFakeTimers();
   jest.setSystemTime(mockDate);
@@ -139,5 +193,11 @@ describe("unit tests for getScheduledMessageRecord()", () => {
   });
   it("if tableData is testTableData and row == 3 then return trueRecord4", () => {
     expect(sm.getScheduledMessageRecord(testTableData, 3)).toEqual(trueRecord4);
+  });
+  it("if tableData is testTableData and row == 4 then return trueRecord5", () => {
+    expect(sm.getScheduledMessageRecord(testTableData, 4)).toEqual(trueRecord5);
+  });
+  it("if tableData is testTableData and row == 5 then return trueRecord6", () => {
+    expect(sm.getScheduledMessageRecord(testTableData, 5)).toEqual(trueRecord6);
   });
 });
