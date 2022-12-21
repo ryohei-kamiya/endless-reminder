@@ -1,3 +1,5 @@
+import { TableData } from "./table_data";
+
 const activeSpreadSheet = () => SpreadsheetApp.getActiveSpreadsheet();
 
 export const mainSheet = () => activeSpreadSheet().getSheetByName("main");
@@ -7,15 +9,15 @@ export const completionKeywordsSheet = () =>
   activeSpreadSheet().getSheetByName("completion_keywords");
 
 /**
- * Get the non-empty values from sheet.
+ * Get the table data from sheet.
  * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet
- * @return {any[][]}
+ * @return {TableData}
  */
-export const getNonEmptyValues = (
+export const getTableData = (
   sheet: GoogleAppsScript.Spreadsheet.Sheet
-): any[][] => {
+): TableData => {
   const lastRow = sheet.getLastRow();
   const lastCol = sheet.getLastColumn();
   const range = sheet.getRange(1, 1, lastRow, lastCol);
-  return range.getValues();
+  return new TableData(range.getValues());
 };

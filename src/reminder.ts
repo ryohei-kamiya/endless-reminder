@@ -58,9 +58,9 @@ export const getCompletionKeywords = (): string[] => {
       `The value of completionKeywordsSheet is null but it should not be.`
     );
   }
-  const allData = sheets.getNonEmptyValues(completionKeywordsSheet);
-  for (let row = 1; row < allData.length; row++) {
-    const keyword = allData[row][0];
+  const tableData = sheets.getTableData(completionKeywordsSheet);
+  for (let row = 1; row < tableData.getRows(); row++) {
+    const keyword = tableData.getValue(row, 0);
     results.push(keyword);
   }
   return results;
@@ -227,55 +227,47 @@ global.remind = (event: any) => {
     scheduledMessage.datetime = date.getTime();
     setReminder(scheduledMessage);
   } else {
-    const updatedScheduledMessages = sm.getScheduledMessagesById(
-      scheduledMessage.id
-    );
-    if (updatedScheduledMessages.length > 0) {
-      if (
-        !updatedScheduledMessages[0].disabled &&
-        updatedScheduledMessages[0].renotice
-      ) {
-        scheduledMessage.renotice = updatedScheduledMessages[0].renotice;
-        scheduledMessage.notRenoticeTo =
-          updatedScheduledMessages[0].notRenoticeTo;
-        const replies = slack.getRepliesFromSlackThread(
-          scheduledMessage.channel,
-          scheduledMessage.threadTs
-        );
-        const completionKeywords = getCompletionKeywords();
-        const sendTo = [];
-        for (let memberId of scheduledMessage.sendTo) {
-          if (
-            !isMemberInCompletionMessageSenders(
-              memberId,
-              replies,
-              completionKeywords
-            )
-          ) {
-            if (!updatedScheduledMessages[0].notRenoticeTo.includes(memberId)) {
-              sendTo.push(memberId);
-            }
+    const updatedScheduledMessage = sm.updateScheduledMessage(scheduledMessage);
+    if (!updatedScheduledMessage.disabled && updatedScheduledMessage.renotice) {
+      scheduledMessage.renotice = updatedScheduledMessage.renotice;
+      scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
+      const replies = slack.getRepliesFromSlackThread(
+        scheduledMessage.channel,
+        scheduledMessage.threadTs
+      );
+      const completionKeywords = getCompletionKeywords();
+      const sendTo = [];
+      for (let memberId of scheduledMessage.sendTo) {
+        if (
+          !isMemberInCompletionMessageSenders(
+            memberId,
+            replies,
+            completionKeywords
+          )
+        ) {
+          if (!updatedScheduledMessage.notRenoticeTo.includes(memberId)) {
+            sendTo.push(memberId);
           }
         }
-        if (sendTo.length > 0) {
-          scheduledMessage.sendTo = sendTo;
-          const payload = {
-            channel: scheduledMessage.channel,
-            thread_ts: scheduledMessage.threadTs,
-            text: getActualMessageToSlack(
-              scheduledMessage.sendTo,
-              scheduledMessage.renotice
-            ),
-            icon_emoji: ":spiral_calendar_pad:",
-            username: "reminder",
-          };
-          slack.sendMessageToSlack(payload);
-          const date = calendar.getNextWorkingDay(
-            new Date(scheduledMessage.datetime)
-          );
-          scheduledMessage.datetime = date.getTime();
-          setReminder(scheduledMessage);
-        }
+      }
+      if (sendTo.length > 0) {
+        scheduledMessage.sendTo = sendTo;
+        const payload = {
+          channel: scheduledMessage.channel,
+          thread_ts: scheduledMessage.threadTs,
+          text: getActualMessageToSlack(
+            scheduledMessage.sendTo,
+            scheduledMessage.renotice
+          ),
+          icon_emoji: ":spiral_calendar_pad:",
+          username: "reminder",
+        };
+        slack.sendMessageToSlack(payload);
+        const date = calendar.getNextWorkingDay(
+          new Date(scheduledMessage.datetime)
+        );
+        scheduledMessage.datetime = date.getTime();
+        setReminder(scheduledMessage);
       }
     }
   }

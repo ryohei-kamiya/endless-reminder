@@ -1,4 +1,5 @@
 import * as sheets from "./sheets";
+import env from "./env.json";
 
 /**
  * Parse years from string to number array
@@ -75,9 +76,9 @@ export const getCalendarIds = (): string[] => {
       `The value of holidayCalendarsSheet is null but it should not be.`
     );
   }
-  const allData = sheets.getNonEmptyValues(holidayCalendarsSheet);
-  for (let row = 1; row < allData.length; row++) {
-    const calenderId = allData[row][0];
+  const tableData = sheets.getTableData(holidayCalendarsSheet);
+  for (let row = 1; row < tableData.getRows(); row++) {
+    const calenderId = tableData.getValue(row, 0);
     results.push(calenderId);
   }
   return results;
@@ -184,12 +185,16 @@ export const getNextWorkingDay = (
   calendarIds: string[] | undefined = undefined
 ): Date => {
   const result = new Date(argDate);
-  result.setDate(result.getDate() + 1);
-  if (calendarIds === undefined) {
-    calendarIds = getCalendarIds();
-  }
-  while (isHoliday(result, calendarIds)) {
+  if (env.debug) {
+    result.setMinutes(result.getMinutes() + 1);
+  } else {
     result.setDate(result.getDate() + 1);
+    if (calendarIds === undefined) {
+      calendarIds = getCalendarIds();
+    }
+    while (isHoliday(result, calendarIds)) {
+      result.setDate(result.getDate() + 1);
+    }
   }
   return result;
 };

@@ -1,15 +1,15 @@
 import * as calendar from "./calendar";
 import * as sm from "./scheduled_message";
 import * as reminder from "./reminder";
+import env from "./env.json";
 
 declare let global: any;
 
-/**
- * Entry point function
- */
-global.main = (): void => {
-  const now = new Date();
-  const tomorrow = new Date(
+const getTomorrow = (now: Date): Date => {
+  if (env.debug) {
+    return now;
+  }
+  return new Date(
     now.getFullYear(),
     now.getMonth(),
     now.getDate() + 1,
@@ -18,6 +18,14 @@ global.main = (): void => {
     0,
     0
   );
+};
+
+/**
+ * Entry point function
+ */
+global.main = (): void => {
+  const now = new Date();
+  const tomorrow = getTomorrow(now);
   if (calendar.isHoliday(tomorrow)) {
     console.log("tomorrow is a holiday.");
     return;
