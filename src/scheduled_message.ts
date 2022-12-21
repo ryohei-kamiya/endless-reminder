@@ -3,7 +3,7 @@ import * as calendar from "./calendar";
 import * as slack from "./slack";
 import { TableData } from "./table_data";
 
-type ScheduledMessageRecord = {
+export type ScheduledMessageRecord = {
   id: number;
   years: number[];
   months: number[];
@@ -23,7 +23,7 @@ type ScheduledMessageRecord = {
  * @param {number} row
  * @return {ScheduledMessageRecord}
  */
-const getScheduledMessageRecord = (
+export const getScheduledMessageRecord = (
   tableData: TableData,
   row: number
 ): ScheduledMessageRecord => {
