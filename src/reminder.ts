@@ -2,7 +2,7 @@ import * as calendar from "./calendar";
 import * as sheets from "./sheets";
 import * as slack from "./slack";
 import * as sm from "./scheduled_message";
-import * as triggerManager from "./trigger-manager";
+import * as triggerManager from "./trigger_manager";
 
 declare let global: any;
 
