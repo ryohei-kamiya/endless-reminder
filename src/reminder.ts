@@ -3,7 +3,7 @@ import * as sheets from "./sheets";
 import * as slack from "./slack";
 import * as sm from "./scheduled_message";
 import * as triggerManager from "./trigger_manager";
-import config from "./config.json";
+import * as settings from "./settings";
 
 declare let global: any;
 
@@ -150,8 +150,8 @@ global.remind = (event: any) => {
         scheduledMessage.sendTo,
         scheduledMessage.message
       ),
-      icon_emoji: config.slack_icon_emoji,
-      username: config.app_name,
+      icon_emoji: settings.getSlackIconEmoji(),
+      username: settings.getBotName(),
     };
     scheduledMessage.threadTs = slack.sendMessageToSlack(payload);
 
@@ -260,8 +260,8 @@ global.remind = (event: any) => {
             scheduledMessage.sendTo,
             scheduledMessage.renotice
           ),
-          icon_emoji: config.slack_icon_emoji,
-          username: config.app_name,
+          icon_emoji: settings.getSlackIconEmoji(),
+          username: settings.getBotName(),
         };
         slack.sendMessageToSlack(payload);
         const date = calendar.getNextWorkingDay(

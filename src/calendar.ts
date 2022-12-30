@@ -1,5 +1,5 @@
 import * as sheets from "./sheets";
-import config from "./config.json";
+import * as settings from "./settings";
 
 /**
  * Parse years from string to number array
@@ -185,7 +185,7 @@ export const getNextWorkingDay = (
   calendarIds: string[] | undefined = undefined
 ): Date => {
   const result = new Date(argDate);
-  if (config.debug) {
+  if (settings.getDebug()) {
     result.setMinutes(result.getMinutes() + 1);
   } else {
     result.setDate(result.getDate() + 1);

@@ -1,3 +1,5 @@
+import * as settings from "./settings";
+
 export type SlackMessage = {
   type: string;
   user: string;
@@ -106,12 +108,6 @@ export type Member = {
   has_2fa?: boolean;
 };
 
-export const getSlackAppToken = (): string => {
-  const prop = PropertiesService.getScriptProperties();
-  const slackAppToken = prop.getProperty("slackAppToken");
-  return slackAppToken ?? "";
-};
-
 /**
  * This function is called by trigger for sending message to slack.
  *
@@ -119,7 +115,7 @@ export const getSlackAppToken = (): string => {
  */
 export const sendMessageToSlack = (payload: any): string => {
   try {
-    const slackAppToken = getSlackAppToken();
+    const slackAppToken = settings.getSlackAppToken();
     if (!slackAppToken) {
       throw Error(`The value of slackAppToken is null but it should not be.`);
     }
@@ -151,7 +147,7 @@ export const sendMessageToSlack = (payload: any): string => {
  * @return {string[]}
  */
 export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }
@@ -208,7 +204,7 @@ export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
  * @return {UserGroup[]}
  */
 export const getUserGroups = (): UserGroup[] => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }
@@ -242,7 +238,7 @@ export const getUserGroups = (): UserGroup[] => {
  * @return {string[]}
  */
 export const getMemberIdsInUserGroup = (usergroup: string): string[] => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }
@@ -280,7 +276,7 @@ export const getRepliesFromSlackThread = (
   channel: string,
   threadTs: string
 ): SlackMessage[] => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }
@@ -344,7 +340,7 @@ export const getRepliesFromSlackThread = (
  * @return {Channel[]}
  */
 export const getChannels = (): Channel[] => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }
@@ -422,7 +418,7 @@ export const convertChannelNameToId = (
  * @return {Member[]}
  */
 export const getAllMembers = (): Member[] => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }
@@ -480,7 +476,7 @@ export const getAllMembers = (): Member[] => {
  * @return {Member|null}
  */
 export const getMember = (memberId: string): Member | null => {
-  const slackAppToken = getSlackAppToken();
+  const slackAppToken = settings.getSlackAppToken();
   if (!slackAppToken) {
     throw Error(`The value of slackAppToken is null but it should not be.`);
   }

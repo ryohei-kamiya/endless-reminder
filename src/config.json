@@ -1,8 +1,10 @@
 {
-  "app_name": "PushyReminder",
   "spread_sheet_name_1": "main",
   "spread_sheet_name_2": "holiday_calendars",
   "spread_sheet_name_3": "completion_keywords",
+  "spread_sheet_name_4": "settings",
+  "bot_name": "PushyReminder",
+  "active_chat_app": "slack",
   "slack_icon_emoji": ":spiral_calendar_pad:",
   "debug": false
 }
