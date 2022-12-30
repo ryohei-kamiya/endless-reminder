@@ -51,14 +51,14 @@ export const getScheduledMessageRecord = (
   // get the channel(id or name) to send message from mainSheet
   const channel = String(tableData.getValue(row, col++));
   // get the receivers from mainSheet
-  let sendToStr = String(tableData.getValue(row, col++));
+  const sendToStr = String(tableData.getValue(row, col++));
   const sendTo = convertReceiverStringToArray(sendToStr);
   // get the message from mainSheet
   const message = String(tableData.getValue(row, col++));
   // get the re-notice message from mainSheet
   const renotice = String(tableData.getValue(row, col++));
   // get the excepted receivers from mainSheet
-  let notRenoticeToStr = String(tableData.getValue(row, col++));
+  const notRenoticeToStr = String(tableData.getValue(row, col++));
   const notRenoticeTo = convertReceiverStringToArray(notRenoticeToStr);
   // get the disabled flag from mainSheet
   const disabled = Boolean(tableData.getValue(row, col++));
@@ -97,9 +97,9 @@ export type ScheduledMessage = {
 export const convertReceiverStringToArray = (sendToStr: string): string[] => {
   const sendTo = [];
   if (sendToStr) {
-    sendToStr = sendToStr.replace(/[\!@,<> ]+/g, " ").trim();
+    sendToStr = sendToStr.replace(/[, ]+/g, " ").trim();
     const members = sendToStr.split(" ").map((member) => member.trim());
-    for (let member of members) {
+    for (const member of members) {
       sendTo.push(member);
     }
   }
@@ -276,7 +276,7 @@ export const getActualNotRenoticeTo = (
       result = allMemberIds;
     } else {
       const notFoundMemberIds: string[] = [];
-      for (let memberId of message.notRenoticeTo) {
+      for (const memberId of message.notRenoticeTo) {
         if (allMemberIds.includes(memberId)) {
           result.push(memberId);
         } else {
@@ -285,7 +285,7 @@ export const getActualNotRenoticeTo = (
       }
       if (notFoundMemberIds.length > 0) {
         const userGroups = slack.getUserGroups();
-        for (let memberId of slack.getMemberIdsInUserGroups(
+        for (const memberId of slack.getMemberIdsInUserGroups(
           notFoundMemberIds,
           userGroups
         )) {
@@ -322,7 +322,7 @@ export const getActualSendTo = (
     } else {
       const sendTo = [];
       const notFoundMemberIds: string[] = [];
-      for (let memberId of message.sendTo) {
+      for (const memberId of message.sendTo) {
         if (allMemberIds.includes(memberId)) {
           if (!message.notRenoticeTo.includes(memberId)) {
             sendTo.push(memberId);
@@ -333,7 +333,7 @@ export const getActualSendTo = (
       }
       if (notFoundMemberIds.length > 0) {
         const userGroups = slack.getUserGroups();
-        for (let memberId of slack.getMemberIdsInUserGroups(
+        for (const memberId of slack.getMemberIdsInUserGroups(
           notFoundMemberIds,
           userGroups
         )) {
@@ -351,7 +351,7 @@ export const getActualSendTo = (
         message.channel,
         message.sentMessageId
       );
-      for (let memberId of result) {
+      for (const memberId of result) {
         if (
           !slack.isMemberInCompletionMessageSenders(
             memberId,
