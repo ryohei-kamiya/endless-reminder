@@ -1,12 +1,14 @@
 import { TableData } from "./table_data";
+import config from "./config.json";
 
 const activeSpreadSheet = () => SpreadsheetApp.getActiveSpreadsheet();
 
-export const mainSheet = () => activeSpreadSheet().getSheetByName("main");
+export const mainSheet = () =>
+  activeSpreadSheet().getSheetByName(config.spread_sheet_name_1);
 export const holidayCalendarsSheet = () =>
-  activeSpreadSheet().getSheetByName("holiday_calendars");
+  activeSpreadSheet().getSheetByName(config.spread_sheet_name_2);
 export const completionKeywordsSheet = () =>
-  activeSpreadSheet().getSheetByName("completion_keywords");
+  activeSpreadSheet().getSheetByName(config.spread_sheet_name_3);
 
 /**
  * Get the table data from sheet.
