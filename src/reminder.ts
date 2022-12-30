@@ -20,6 +20,27 @@ export const setReminder = (scheduledMessage: sm.ScheduledMessage) => {
   triggerManager.setTriggerArguments(trigger, scheduledMessage, false);
 };
 
+/**
+ * Send a message to the chat app.
+ * @param {sm.ScheduledMessage} message
+ * @return {string}
+ */
+export const sendMessage = (message: sm.ScheduledMessage): string => {
+  if (settings.getActiveChatApp() === "slack") {
+    const payload: slack.SlackMessageRequest = {
+      channel: message.channel,
+      text: slack.getActualMessageToSlack(message.sendTo, message.renotice),
+      icon_emoji: settings.getSlackIconEmoji(),
+      username: settings.getBotName(),
+    };
+    if (message.sentMessageId) {
+      payload.thread_ts = message.sentMessageId;
+    }
+    return slack.sendMessageToSlack(payload);
+  }
+  return "";
+};
+
 global.remind = (event: any) => {
   const scheduledMessage: sm.ScheduledMessage = triggerManager.handleTriggered(
     event.triggerUid
@@ -28,18 +49,7 @@ global.remind = (event: any) => {
     if (scheduledMessage.disabled) {
       return;
     }
-    if (settings.getActiveChatApp() === "slack") {
-      const payload = {
-        channel: scheduledMessage.channel,
-        text: slack.getActualMessageToSlack(
-          scheduledMessage.sendTo,
-          scheduledMessage.message
-        ),
-        icon_emoji: settings.getSlackIconEmoji(),
-        username: settings.getBotName(),
-      };
-      scheduledMessage.sentMessageId = slack.sendMessageToSlack(payload);
-    }
+    scheduledMessage.sentMessageId = sendMessage(scheduledMessage);
     const updatedScheduledMessage = sm.updateScheduledMessage(scheduledMessage);
     if (!updatedScheduledMessage.disabled && updatedScheduledMessage.renotice) {
       scheduledMessage.sendTo = updatedScheduledMessage.sendTo;
@@ -58,19 +68,7 @@ global.remind = (event: any) => {
       scheduledMessage.renotice = updatedScheduledMessage.renotice;
       scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
       if (scheduledMessage.sendTo.length > 0) {
-        if (settings.getActiveChatApp() === "slack") {
-          const payload = {
-            channel: scheduledMessage.channel,
-            thread_ts: scheduledMessage.sentMessageId,
-            text: slack.getActualMessageToSlack(
-              scheduledMessage.sendTo,
-              scheduledMessage.renotice
-            ),
-            icon_emoji: settings.getSlackIconEmoji(),
-            username: settings.getBotName(),
-          };
-          slack.sendMessageToSlack(payload);
-        }
+        sendMessage(scheduledMessage);
         const date = calendar.getNextWorkingDay(
           new Date(scheduledMessage.datetime)
         );

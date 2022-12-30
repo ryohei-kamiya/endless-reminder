@@ -1,6 +1,14 @@
 import * as settings from "./settings";
 import * as utils from "./utils";
 
+export type SlackMessageRequest = {
+  channel: string;
+  text: string;
+  icon_emoji?: string;
+  username?: string;
+  thread_ts?: string;
+};
+
 export type SlackMessage = {
   type: string;
   user: string;
@@ -110,7 +118,7 @@ export type Member = {
 };
 
 /**
- * This function is called by trigger for sending message to slack.
+ * Send a message to slack.
  *
  * @param {*} payload
  */
