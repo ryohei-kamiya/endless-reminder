@@ -6,20 +6,25 @@ const settingsSheet: GoogleAppsScript.Spreadsheet.Sheet | null =
 const tableData = sheets.getTableData(settingsSheet);
 
 export const getProperty = (propertyName: string): any => {
+  let result: any = null;
   for (let row = 1; row < tableData.getRows(); row++) {
     const name = tableData.getValue(row, 0);
     const value = tableData.getValue(row, 1);
     if (name.toUpperCase() === propertyName) {
       if (typeof value === "string") {
-        return value.trim();
+        result = value.trim();
       }
-      return value;
+      result = value;
+      break;
     }
   }
+  if (result !== null && result !== "") {
+    return result;
+  }
   const conf = new Map(Object.entries(config));
-  const configValue = conf.get(propertyName.toLowerCase());
-  if (configValue) {
-    return configValue;
+  result = conf.get(propertyName.toLowerCase());
+  if (result !== null && result !== "") {
+    return result;
   }
   const prop = PropertiesService.getScriptProperties();
   const propertyValue = prop.getProperty(propertyName);
@@ -31,7 +36,7 @@ export const getBotName = (): string => {
 };
 
 export const getActiveChatApp = (): string => {
-  return getProperty("ACTIVE_CHAT_APP");
+  return getProperty("ACTIVE_CHAT_APP").toLowerCase();
 };
 
 export const getSlackAppToken = (): string => {

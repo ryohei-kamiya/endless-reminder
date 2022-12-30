@@ -5,6 +5,7 @@
   "spread_sheet_name_4": "settings",
   "bot_name": "PushyReminder",
   "active_chat_app": "slack",
+  "slack_app_token": "",
   "slack_icon_emoji": ":spiral_calendar_pad:",
   "debug": false
 }
