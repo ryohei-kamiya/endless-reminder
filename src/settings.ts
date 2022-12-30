@@ -1,15 +1,21 @@
 import * as sheets from "./sheets";
 import config from "./config.json";
+import { TableData } from "./table_data";
 
-const settingsSheet: GoogleAppsScript.Spreadsheet.Sheet | null =
-  sheets.settingsSheet();
-const tableData = sheets.getTableData(settingsSheet);
+let tableData: TableData | null = null;
+
+export const initSettings = () => {
+  tableData = sheets.getTableData(sheets.settingsSheet());
+};
 
 export const getProperty = (propertyName: string): any => {
+  if (tableData === null) {
+    initSettings();
+  }
   let result: any = null;
-  for (let row = 1; row < tableData.getRows(); row++) {
-    const name = tableData.getValue(row, 0);
-    const value = tableData.getValue(row, 1);
+  for (let row = 1; row < tableData!.getRows(); row++) {
+    const name = tableData!.getValue(row, 0);
+    const value = tableData!.getValue(row, 1);
     if (name.toUpperCase() === propertyName) {
       if (typeof value === "string") {
         result = value.trim();
