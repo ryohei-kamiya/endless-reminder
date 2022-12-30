@@ -10,7 +10,10 @@ export const getProperty = (propertyName: string): any => {
     const name = tableData.getValue(row, 0);
     const value = tableData.getValue(row, 1);
     if (name.toUpperCase() === propertyName) {
-      return value.trim();
+      if (typeof value === "string") {
+        return value.trim();
+      }
+      return value;
     }
   }
   const conf = new Map(Object.entries(config));
