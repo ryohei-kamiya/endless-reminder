@@ -4,10 +4,10 @@
     "prepare": "husky install",
     "commit": "git-cz",
     "lint": "eslint --fix src/**/*.ts",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
+    "test": "npm run lint && jest",
+    "test:coverage": "npm run lint && jest --coverage",
     "watch": "webpack --watch",
-    "build": "webpack",
+    "build": "npm run test && webpack",
     "deploy": "npm run build && clasp push"
   },
   "config": {
@@ -27,6 +27,7 @@
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-googleappsscript": "^1.0.4",
+    "eslint-plugin-jest": "^27.1.7",
     "gas-webpack-plugin": "^2.3.0",
     "husky": "^8.0.2",
     "inquirer": "^8.2.5",
