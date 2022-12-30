@@ -1,6 +1,7 @@
 import * as sheets from "./sheets";
 import * as calendar from "./calendar";
 import * as slack from "./slack";
+import * as settings from "./settings";
 import { TableData } from "./table_data";
 
 export type ScheduledMessageRecord = {
@@ -85,7 +86,7 @@ export type ScheduledMessage = {
   renotice: string;
   notRenoticeTo: string[];
   disabled: boolean;
-  threadTs: string | null;
+  sentMessageId: string | null;
 };
 
 /**
@@ -109,13 +110,11 @@ export const convertReceiverStringToArray = (sendToStr: string): string[] => {
  * Convert a ScheduledMessageRecord to the array of ScheduledMessage
  * @param {ScheduledMessageRecord} record
  * @param {string[]} calendarIds
- * @param {slack.Channel[]} channels
  * @return {ScheduledMessage[]}
  */
 export const convertRecordToMessages = (
   record: ScheduledMessageRecord,
   calendarIds: string[],
-  channels: slack.Channel[],
   filterByYear: ((year: number) => boolean) | undefined = undefined,
   filterByMonth: ((month: number) => boolean) | undefined = undefined,
   filterByDate: ((date: number) => boolean) | undefined = undefined
@@ -148,13 +147,13 @@ export const convertRecordToMessages = (
       results.push({
         id: record.id,
         datetime: date.getTime(),
-        channel: slack.convertChannelNameToId(record.channel, channels),
+        channel: record.channel,
         sendTo: record.sendTo,
         message: record.message,
         renotice: record.renotice,
         notRenoticeTo: record.notRenoticeTo,
         disabled: record.disabled,
-        threadTs: null,
+        sentMessageId: null,
       });
     }
   }
@@ -171,12 +170,13 @@ export const getScheduledMessages = (
 ): ScheduledMessage[] => {
   let results: ScheduledMessage[] = [];
   const calendarIds = calendar.getCalendarIds();
-  const channels: slack.Channel[] = slack.getChannels();
   const _mainSheet = sheets.mainSheet();
   if (!_mainSheet) {
     throw Error(`The value of mainSheet is null but it should not be.`);
   }
   const tableData = sheets.getTableData(_mainSheet);
+  const slackChannels: slack.Channel[] =
+    settings.getActiveChatApp() === "slack" ? slack.getChannels() : [];
   for (let row = 1; row < tableData.getRows(); row++) {
     const record = getScheduledMessageRecord(tableData, row);
     if (!Number.isInteger(record.id)) {
@@ -186,10 +186,15 @@ export const getScheduledMessages = (
       continue;
     }
     if (argDate) {
+      if (settings.getActiveChatApp() === "slack") {
+        record.channel = slack.convertChannelNameToId(
+          record.channel,
+          slackChannels
+        );
+      }
       const messages: ScheduledMessage[] = convertRecordToMessages(
         record,
         calendarIds,
-        channels,
         (year: number): boolean => {
           return argDate.getFullYear() === year;
         },
@@ -202,15 +207,165 @@ export const getScheduledMessages = (
       );
       results = results.concat(messages);
     } else {
+      if (settings.getActiveChatApp() === "slack") {
+        record.channel = slack.convertChannelNameToId(
+          record.channel,
+          slackChannels
+        );
+      }
       const messages: ScheduledMessage[] = convertRecordToMessages(
         record,
-        calendarIds,
-        channels
+        calendarIds
       );
       results = results.concat(messages);
     }
   }
   return results;
+};
+
+/**
+ * Get array of the completion keyword
+ * @return {string[]}
+ */
+export const getCompletionKeywords = (): string[] => {
+  const results: string[] = [];
+  const completionKeywordsSheet = sheets.completionKeywordsSheet();
+  if (!completionKeywordsSheet) {
+    throw Error(
+      `The value of completionKeywordsSheet is null but it should not be.`
+    );
+  }
+  const tableData = sheets.getTableData(completionKeywordsSheet);
+  for (let row = 1; row < tableData.getRows(); row++) {
+    const keyword = tableData.getValue(row, 0);
+    results.push(keyword);
+  }
+  return results;
+};
+
+/**
+ * Get memberIds on the channel
+ * @param {string} channel -
+ * @return {string[]}
+ */
+export const getMemberIdsOnChannel = (channel: string): string[] => {
+  if (settings.getActiveChatApp() === "slack") {
+    // get memberIds on this channel
+    return slack.getMemberIdsOnSlackChannel(channel);
+  }
+  return [];
+};
+
+/**
+ * Get actual menberIds of notRenoticeTo
+ * @param {ScheduledMessage} message - a scheduled message
+ * @param {string[]} allMemberIds
+ * @return {string[]}
+ */
+export const getActualNotRenoticeTo = (
+  message: ScheduledMessage,
+  allMemberIds: string[]
+): string[] => {
+  let result: string[] = [];
+  if (settings.getActiveChatApp() === "slack") {
+    if (
+      message.notRenoticeTo.some(
+        (memberId) => memberId === "channel" || memberId == "here"
+      )
+    ) {
+      result = allMemberIds;
+    } else {
+      const notFoundMemberIds: string[] = [];
+      for (let memberId of message.notRenoticeTo) {
+        if (allMemberIds.includes(memberId)) {
+          result.push(memberId);
+        } else {
+          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+        }
+      }
+      if (notFoundMemberIds.length > 0) {
+        const userGroups = slack.getUserGroups();
+        for (let memberId of slack.getMemberIdsInUserGroups(
+          notFoundMemberIds,
+          userGroups
+        )) {
+          result.push(memberId);
+        }
+      }
+    }
+  }
+  return result;
+};
+
+/**
+ * Get actual menberIds of sendTo
+ * @param {ScheduledMessage} message - a scheduled message
+ * @param {string[]} allMemberIds
+ * @return {string[]}
+ */
+export const getActualSendTo = (
+  message: ScheduledMessage,
+  allMemberIds: string[]
+): string[] => {
+  let result: string[] = [];
+  if (settings.getActiveChatApp() === "slack") {
+    if (
+      message.sendTo.some(
+        (memberId) => memberId === "channel" || memberId === "here"
+      )
+    ) {
+      const sendTo = allMemberIds.filter(
+        (memberId) =>
+          !slack.isBot(memberId) && !message.notRenoticeTo.includes(memberId)
+      );
+      result = sendTo;
+    } else {
+      const sendTo = [];
+      const notFoundMemberIds: string[] = [];
+      for (let memberId of message.sendTo) {
+        if (allMemberIds.includes(memberId)) {
+          if (!message.notRenoticeTo.includes(memberId)) {
+            sendTo.push(memberId);
+          }
+        } else {
+          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+        }
+      }
+      if (notFoundMemberIds.length > 0) {
+        const userGroups = slack.getUserGroups();
+        for (let memberId of slack.getMemberIdsInUserGroups(
+          notFoundMemberIds,
+          userGroups
+        )) {
+          if (!message.notRenoticeTo.includes(memberId)) {
+            sendTo.push(memberId);
+          }
+        }
+      }
+      result = sendTo;
+    }
+    if (message.sentMessageId) {
+      const sendTo = [];
+      const completionKeywords = getCompletionKeywords();
+      const replies = slack.getRepliesFromSlackThread(
+        message.channel,
+        message.sentMessageId
+      );
+      for (let memberId of result) {
+        if (
+          !slack.isMemberInCompletionMessageSenders(
+            memberId,
+            replies,
+            completionKeywords
+          )
+        ) {
+          sendTo.push(memberId);
+        }
+      }
+      result = sendTo;
+    }
+  }
+  return result;
 };
 
 /**
@@ -230,7 +385,7 @@ export const updateScheduledMessage = (
     renotice: message.renotice,
     notRenoticeTo: message.notRenoticeTo,
     disabled: message.disabled,
-    threadTs: message.threadTs,
+    sentMessageId: message.sentMessageId,
   };
   const _mainSheet = sheets.mainSheet();
   if (!_mainSheet) {
@@ -248,11 +403,12 @@ export const updateScheduledMessage = (
     if (message.id !== record.id) {
       continue;
     }
-    result.channel = record.channel;
-    result.sendTo = record.sendTo;
+    const channelMemberIds = getMemberIdsOnChannel(result.channel);
     result.message = record.message;
     result.renotice = record.renotice;
     result.notRenoticeTo = record.notRenoticeTo;
+    result.notRenoticeTo = getActualNotRenoticeTo(result, channelMemberIds);
+    result.sendTo = getActualSendTo(result, channelMemberIds);
     result.disabled = record.disabled;
     break;
   }

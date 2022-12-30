@@ -1,4 +1,5 @@
 import * as settings from "./settings";
+import * as utils from "./utils";
 
 export type SlackMessage = {
   type: string;
@@ -519,4 +520,81 @@ export const isBot = (memberId: string): boolean => {
     }
   }
   return false;
+};
+
+/**
+ * Get the actual message sending to Slack
+ * @param {string[]} sendTo
+ * @param {string} text
+ * @returns
+ */
+export const getActualMessageToSlack = (
+  sendTo: string[],
+  text: string
+): string => {
+  let message = "";
+  for (let member of sendTo) {
+    if (member.toLowerCase() === "channel" || member.toLowerCase() === "here") {
+      message = `${message} <!${member}>`;
+    } else {
+      message = `${message} <@${member}>`;
+    }
+  }
+  message = message.trim();
+  if (message.length > 0) {
+    message += "\n";
+  }
+  message += text;
+  return message;
+};
+
+/**
+ * Is member in senders of completion message?
+ * @param {string} member
+ * @param {SlackMessage[]} messages
+ * @return {boolean}
+ */
+export const isMemberInCompletionMessageSenders = (
+  member: string,
+  messages: SlackMessage[],
+  completionKeywords: string[]
+): boolean => {
+  for (let message of messages) {
+    if (message.user === member) {
+      if (utils.hasSomeKeywordsInText(message.text, completionKeywords)) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+/**
+ * Get the array of member's id in any one of allUserGroups.
+ * @param {string[]} targetUserGroupIds
+ * @param {UserGroup[]} allUserGroups
+ */
+export const getMemberIdsInUserGroups = (
+  targetUserGroupIds: string[],
+  allUserGroups: UserGroup[]
+) => {
+  const results: string[] = [];
+  for (let userGroupId of targetUserGroupIds) {
+    const filteredUserGroups = allUserGroups.filter(
+      (element) => element.id === userGroupId || element.handle === userGroupId
+    );
+    if (filteredUserGroups.length > 0) {
+      const userGroup = filteredUserGroups[0];
+      const memberIdsInUserGroup = getMemberIdsInUserGroup(userGroup.id);
+      for (let memberIdInUG of memberIdsInUserGroup) {
+        if (isBot(memberIdInUG)) {
+          continue;
+        }
+        if (!results.includes(memberIdInUG)) {
+          results.push(memberIdInUG);
+        }
+      }
+    }
+  }
+  return results;
 };
