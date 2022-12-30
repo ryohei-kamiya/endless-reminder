@@ -1,12 +1,12 @@
 import * as calendar from "./calendar";
 import * as sm from "./scheduled_message";
 import * as reminder from "./reminder";
-import env from "./env.json";
+import config from "./config.json";
 
 declare let global: any;
 
 const getTomorrow = (now: Date): Date => {
-  if (env.debug) {
+  if (config.debug) {
     return now;
   }
   return new Date(

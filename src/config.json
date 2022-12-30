@@ -1,0 +1,5 @@
+{
+  "app_name": "PushyReminder",
+  "slack_icon_emoji": ":spiral_calendar_pad:",
+  "debug": false
+}
