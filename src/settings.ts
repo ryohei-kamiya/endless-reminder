@@ -13,15 +13,17 @@ export const getProperty = (propertyName: string): any => {
     initSettings();
   }
   let result: any = null;
-  for (let row = 1; row < tableData!.getRows(); row++) {
-    const name = tableData!.getValue(row, 0);
-    const value = tableData!.getValue(row, 1);
-    if (name.toUpperCase() === propertyName) {
-      if (typeof value === "string") {
-        result = value.trim();
+  if (tableData !== null) {
+    for (let row = 1; row < tableData.getRows(); row++) {
+      const name = tableData.getValue(row, 0);
+      const value = tableData.getValue(row, 1);
+      if (name.toUpperCase() === propertyName) {
+        if (typeof value === "string") {
+          result = value.trim();
+        }
+        result = value;
+        break;
       }
-      result = value;
-      break;
     }
   }
   if (result !== null && result !== "") {

@@ -8,7 +8,7 @@ export const hasSomeKeywordsInText = (
   text: string,
   keywords: string[]
 ): boolean => {
-  for (let keyword of keywords) {
+  for (const keyword of keywords) {
     if (text.indexOf(keyword) !== -1) {
       return true;
     }

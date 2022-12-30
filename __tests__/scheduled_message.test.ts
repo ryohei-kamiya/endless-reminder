@@ -10,10 +10,10 @@ const testTableData: TableData = new TableData([
     1,
     mockDate,
     "random",
-    "<!channel>",
+    "channel",
     "Hello world!",
     "Hello world again!",
-    "<@dummy_user_id1>",
+    "dummy_user_id1",
     false,
   ],
   [
@@ -39,7 +39,7 @@ const testTableData: TableData = new TableData([
     "channel",
     "Hello world!",
     "Hello world again!",
-    "dummy_user_id1, dummy_user_id2, <@dummy_user_id3>",
+    "dummy_user_id1, dummy_user_id2, dummy_user_id3",
     true,
   ],
   [
@@ -52,7 +52,7 @@ const testTableData: TableData = new TableData([
     "channel",
     "Hello world!",
     "Hello world again!",
-    "dummy_user_id1, dummy_user_id2, <@dummy_user_id3>",
+    "dummy_user_id1, dummy_user_id2, dummy_user_id3",
     "",
   ],
   [
@@ -62,10 +62,10 @@ const testTableData: TableData = new TableData([
     5,
     mockDate,
     "random",
-    "<!channel>",
+    "channel",
     "Hello world!",
     "Hello world again!",
-    "<@dummy_user_id1>",
+    "dummy_user_id1",
     false,
   ],
   [
@@ -75,10 +75,10 @@ const testTableData: TableData = new TableData([
     6,
     mockDate,
     "random",
-    "<!channel>",
+    "channel",
     "Hello world!",
     "Hello world again!",
-    "<@dummy_user_id1>",
+    "dummy_user_id1",
     false,
   ],
 ]);
@@ -173,8 +173,8 @@ beforeAll(() => {
 });
 
 describe("unit tests for convertReceiverStringToArray()", () => {
-  it("if args is '<!channel>,<@dummy>' then return ['channel', 'dummy']", () => {
-    expect(sm.convertReceiverStringToArray("<!channel>,<@dummy>")).toEqual([
+  it("if args is 'channel, dummy' then return ['channel', 'dummy']", () => {
+    expect(sm.convertReceiverStringToArray("channel, dummy")).toEqual([
       "channel",
       "dummy",
     ]);

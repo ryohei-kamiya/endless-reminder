@@ -96,7 +96,7 @@ export const existsEventInCalendar = (
   startDate: Date,
   endDate: Date
 ): boolean => {
-  let result: boolean = false;
+  let result = false;
   const cal = CalendarApp.getCalendarById(calenderId);
   if (cal) {
     const holidays = cal.getEvents(startDate, endDate);

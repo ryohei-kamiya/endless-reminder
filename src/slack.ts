@@ -169,8 +169,8 @@ export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
   };
   const results: string[] = [];
   const baseQueryString = `?channel=${channel}&limit=100`;
-  let queryString: string = "";
-  let nextCursor: string = "";
+  let queryString = "";
+  let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       if (nextCursor) {
@@ -185,7 +185,7 @@ export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
         return results;
       }
       let existsNewMember = false;
-      for (let memberId of json["members"]) {
+      for (const memberId of json["members"]) {
         if (results.includes(memberId)) {
           continue;
         }
@@ -232,7 +232,7 @@ export const getUserGroups = (): UserGroup[] => {
     if (!json || !json["ok"]) {
       return results;
     }
-    for (let usergroup of json["usergroups"]) {
+    for (const usergroup of json["usergroups"]) {
       results.push(usergroup);
     }
   } catch (e) {
@@ -266,7 +266,7 @@ export const getMemberIdsInUserGroup = (usergroup: string): string[] => {
     if (!json || !json["ok"]) {
       return results;
     }
-    for (let user of json["users"]) {
+    for (const user of json["users"]) {
       results.push(user);
     }
   } catch (e) {
@@ -298,8 +298,8 @@ export const getRepliesFromSlackThread = (
   };
   const results: SlackMessage[] = [];
   const baseQueryString = `?channel=${channel}&ts=${threadTs}&limit=100`;
-  let queryString: string = "";
-  let nextCursor: string = "";
+  let queryString = "";
+  let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       if (nextCursor) {
@@ -314,7 +314,7 @@ export const getRepliesFromSlackThread = (
         return results;
       }
       let existsNewReply = false;
-      for (let reply of json["messages"]) {
+      for (const reply of json["messages"]) {
         if (reply.thread_ts === reply.ts) {
           continue;
         }
@@ -362,8 +362,8 @@ export const getChannels = (): Channel[] => {
   };
   const results: Channel[] = [];
   const baseQueryString = `?exclude_archived=true&types=public_channel%2Cprivate_channel%2Cmpim%2Cim&limit=100`;
-  let queryString: string = "";
-  let nextCursor: string = "";
+  let queryString = "";
+  let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       if (nextCursor) {
@@ -378,7 +378,7 @@ export const getChannels = (): Channel[] => {
         return results;
       }
       let existsNewChannel = false;
-      for (let channel of json["channels"]) {
+      for (const channel of json["channels"]) {
         if (results.some((result) => result.id === channel.id)) {
           continue;
         }
@@ -414,7 +414,7 @@ export const convertChannelNameToId = (
   if (channels === undefined) {
     channels = getChannels();
   }
-  for (let channel of channels) {
+  for (const channel of channels) {
     if (channel.name === name) {
       return channel.id;
     }
@@ -440,8 +440,8 @@ export const getAllMembers = (): Member[] => {
   };
   const results: Member[] = [];
   const baseQueryString = `?limit=100`;
-  let queryString: string = "";
-  let nextCursor: string = "";
+  let queryString = "";
+  let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       if (nextCursor) {
@@ -456,7 +456,7 @@ export const getAllMembers = (): Member[] => {
         return results;
       }
       let existsNewMember = false;
-      for (let member of json["members"]) {
+      for (const member of json["members"]) {
         if (results.some((result) => result.id === member.id)) {
           continue;
         }
@@ -541,7 +541,7 @@ export const getActualMessageToSlack = (
   text: string
 ): string => {
   let message = "";
-  for (let member of sendTo) {
+  for (const member of sendTo) {
     if (member.toLowerCase() === "channel" || member.toLowerCase() === "here") {
       message = `${message} <!${member}>`;
     } else {
@@ -567,7 +567,7 @@ export const isMemberInCompletionMessageSenders = (
   messages: SlackMessage[],
   completionKeywords: string[]
 ): boolean => {
-  for (let message of messages) {
+  for (const message of messages) {
     if (message.user === member) {
       if (utils.hasSomeKeywordsInText(message.text, completionKeywords)) {
         return true;
@@ -587,14 +587,14 @@ export const getMemberIdsInUserGroups = (
   allUserGroups: UserGroup[]
 ) => {
   const results: string[] = [];
-  for (let userGroupId of targetUserGroupIds) {
+  for (const userGroupId of targetUserGroupIds) {
     const filteredUserGroups = allUserGroups.filter(
       (element) => element.id === userGroupId || element.handle === userGroupId
     );
     if (filteredUserGroups.length > 0) {
       const userGroup = filteredUserGroups[0];
       const memberIdsInUserGroup = getMemberIdsInUserGroup(userGroup.id);
-      for (let memberIdInUG of memberIdsInUserGroup) {
+      for (const memberIdInUG of memberIdsInUserGroup) {
         if (isBot(memberIdInUG)) {
           continue;
         }
