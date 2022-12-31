@@ -11,16 +11,11 @@ declare let global: any;
  * @param {ScheduledMessage} scheduledMessage
  */
 export const setReminder = (scheduledMessage: sm.ScheduledMessage) => {
-  const triggerDate = new Date(scheduledMessage.datetime);
-  const now = new Date();
-  if (triggerDate < now) {
-    return;
-  }
   const trigger: GoogleAppsScript.Script.Trigger = ScriptApp.newTrigger(
     "remind"
   )
     .timeBased()
-    .at(triggerDate)
+    .at(new Date(scheduledMessage.datetime))
     .create();
   triggerManager.setTriggerArguments(trigger, scheduledMessage, false);
 };
