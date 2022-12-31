@@ -64,9 +64,7 @@ global.remind = (event: any) => {
       scheduledMessage.sendTo = updatedScheduledMessage.sendTo;
       scheduledMessage.renotice = updatedScheduledMessage.renotice;
       scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
-      const date = calendar.getNextWorkingDay(
-        new Date(scheduledMessage.datetime)
-      );
+      const date = calendar.getNextDate(new Date(scheduledMessage.datetime));
       scheduledMessage.datetime = date.getTime();
       setReminder(scheduledMessage);
     }
@@ -78,9 +76,7 @@ global.remind = (event: any) => {
       scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
       if (scheduledMessage.sendTo.length > 0) {
         sendMessage(scheduledMessage);
-        const date = calendar.getNextWorkingDay(
-          new Date(scheduledMessage.datetime)
-        );
+        const date = calendar.getNextDate(new Date(scheduledMessage.datetime));
         scheduledMessage.datetime = date.getTime();
         setReminder(scheduledMessage);
       }

@@ -2,6 +2,7 @@ import * as sheets from "./sheets";
 import * as calendar from "./calendar";
 import * as slack from "./slack";
 import * as settings from "./settings";
+import * as utils from "./utils";
 import { TableData } from "./table_data";
 
 export type ScheduledMessageRecord = {
@@ -38,16 +39,7 @@ export const getScheduledMessageRecord = (
   // get number of business days from the beginning of the month from mainSheet
   const numOfBizDays = Number(tableData.getValue(row, col++));
   // get the scheduled message sending time from mainSheet
-  const time = tableData.getValue(row, col++);
-  let hms = "";
-  if (time instanceof Date) {
-    const hour = ("00" + time.getHours()).slice(-2);
-    const minutes = ("00" + time.getMinutes()).slice(-2);
-    const seconds = ("00" + time.getSeconds()).slice(-2);
-    hms = `${hour}:${minutes}:${seconds}`;
-  } else {
-    hms = String(time);
-  }
+  const hms = utils.convertTimeToString(tableData.getValue(row, col++));
   // get the channel(id or name) to send message from mainSheet
   const channel = String(tableData.getValue(row, col++));
   // get the receivers from mainSheet

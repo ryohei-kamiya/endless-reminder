@@ -1,4 +1,5 @@
 import * as sheets from "./sheets";
+import * as utils from "./utils";
 import config from "./config.json";
 import { TableData } from "./table_data";
 
@@ -55,6 +56,20 @@ export const getSlackIconEmoji = (): string => {
   return getProperty("SLACK_ICON_EMOJI");
 };
 
-export const getDebug = (): string => {
+export const getTimeInterval = (): number => {
+  return Number(getProperty("TIME_INTERVAL"));
+};
+
+export const getOpeningTime = (): string => {
+  const time = getProperty("OPENING_TIME");
+  return utils.convertTimeToString(time);
+};
+
+export const getClosingTime = (): string => {
+  const time = getProperty("CLOSING_TIME");
+  return utils.convertTimeToString(time);
+};
+
+export const getDebug = (): boolean => {
   return getProperty("DEBUG");
 };

@@ -175,26 +175,40 @@ export const convertBusinessDaysToDate = (
 };
 
 /**
- * Get a next working day
+ * Get a next date
  * @param {Date} argDate
  * @param {string[]} calendarIds
  * @return {Date}
  */
-export const getNextWorkingDay = (
+export const getNextDate = (
   argDate: Date,
   calendarIds: string[] | undefined = undefined
 ): Date => {
   const result = new Date(argDate);
-  if (settings.getDebug()) {
-    result.setMinutes(result.getMinutes() + 1);
-  } else {
+  result.setMinutes(result.getMinutes() + settings.getTimeInterval());
+  const openingDate = new Date();
+  updateDateByTimeString(openingDate, settings.getOpeningTime());
+  if (result < openingDate) {
+    result.setDate(openingDate.getDate());
+    result.setHours(openingDate.getHours());
+    result.setMinutes(openingDate.getMinutes());
+    result.setSeconds(openingDate.getSeconds());
+    result.setMilliseconds(0);
+  }
+  const closingDate = new Date();
+  updateDateByTimeString(closingDate, settings.getClosingTime());
+  if (result > closingDate) {
+    result.setDate(openingDate.getDate() + 1);
+    result.setHours(openingDate.getHours());
+    result.setMinutes(openingDate.getMinutes());
+    result.setSeconds(openingDate.getSeconds());
+    result.setMilliseconds(0);
+  }
+  if (calendarIds === undefined) {
+    calendarIds = getCalendarIds();
+  }
+  while (isHoliday(result, calendarIds)) {
     result.setDate(result.getDate() + 1);
-    if (calendarIds === undefined) {
-      calendarIds = getCalendarIds();
-    }
-    while (isHoliday(result, calendarIds)) {
-      result.setDate(result.getDate() + 1);
-    }
   }
   return result;
 };
