@@ -45,6 +45,10 @@ global.main = (): void => {
       console.log(`${tomorrow.getDate()} !== ${date.getDate()}`);
       continue;
     }
+    if (date < now) {
+      console.log(`${date.toISOString()} < ${now.toISOString()}`);
+      continue;
+    }
     if (!scheduledMessage.disabled) {
       reminder.setReminder(scheduledMessage);
     }

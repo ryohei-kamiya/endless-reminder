@@ -50,9 +50,6 @@ global.remind = (event: any) => {
     if (scheduledMessage.disabled) {
       return;
     }
-    if (new Date(scheduledMessage.datetime) < new Date()) {
-      return;
-    }
     scheduledMessage.sentMessageId = sendMessage(scheduledMessage);
     const updatedScheduledMessage = sm.updateScheduledMessage(scheduledMessage);
     if (!updatedScheduledMessage.disabled && updatedScheduledMessage.renotice) {
