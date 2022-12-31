@@ -29,12 +29,13 @@ export const sendMessage = (message: sm.ScheduledMessage): string => {
   if (settings.getActiveChatApp() === "slack") {
     const payload: slack.SlackMessageRequest = {
       channel: message.channel,
-      text: slack.getActualMessageToSlack(message.sendTo, message.renotice),
+      text: slack.getActualMessageToSlack(message.sendTo, message.message),
       icon_emoji: settings.getSlackIconEmoji(),
       username: settings.getBotName(),
     };
     if (message.sentMessageId) {
       payload.thread_ts = message.sentMessageId;
+      payload.text = message.renotice;
     }
     return slack.sendMessageToSlack(payload);
   }
