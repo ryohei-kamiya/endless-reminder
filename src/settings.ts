@@ -76,13 +76,13 @@ export const getTimeIntervalDecay = (): number => {
 
 export const getTimeIntervalMin = (): number => {
   const result = Number(getProperty("TIME_INTERVAL_MIN"));
+  const timeInterval = getTimeInterval();
   if (Number.isNaN(result)) {
-    return 1; // default TIME_INTERVAL_MIN is 1
+    return timeInterval; // default TIME_INTERVAL_MIN is TIME_INTERVAL
   } else {
     if (result < 1) {
       return 1; // minimum value of TIME_INTERVAL_MIN is 1
     }
-    const timeInterval = getTimeInterval();
     if (timeInterval < result) {
       return timeInterval; // maximum value of TIME_INTERVAL_MIN is TIME_INTERVAL
     }
