@@ -76,6 +76,8 @@ export const getScheduledMessageRecord = (
 export type ScheduledMessage = {
   id: number;
   datetime: number;
+  timeInterval: number;
+  exceptHolidays: boolean;
   channel: string;
   sendTo: string[];
   message: string;
@@ -150,6 +152,8 @@ export const convertRecordToMessages = (
       results.push({
         id: record.id,
         datetime: date.getTime(),
+        timeInterval: settings.getTimeInterval(),
+        exceptHolidays: record.exceptHolidays,
         channel: record.channel,
         sendTo: record.sendTo,
         message: record.message,
@@ -382,6 +386,8 @@ export const updateScheduledMessage = (
   const result: ScheduledMessage = {
     id: message.id,
     datetime: message.datetime,
+    timeInterval: message.timeInterval,
+    exceptHolidays: message.exceptHolidays,
     channel: message.channel,
     sendTo: message.sendTo,
     message: message.message,

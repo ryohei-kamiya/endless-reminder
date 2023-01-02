@@ -177,15 +177,19 @@ export const convertBusinessDaysToDate = (
 /**
  * Get a next date
  * @param {Date} argDate
+ * @param {number} timeInterval
+ * @param {boolean} exceptHolidays
  * @param {string[]} calendarIds
  * @return {Date}
  */
 export const getNextDate = (
   argDate: Date,
+  timeInterval: number,
+  exceptHolidays: boolean,
   calendarIds: string[] | undefined = undefined
 ): Date => {
   const result = new Date(argDate);
-  result.setMinutes(result.getMinutes() + settings.getTimeInterval());
+  result.setMinutes(result.getMinutes() + timeInterval);
   const openingDate = new Date();
   updateDateByTimeString(openingDate, settings.getOpeningTime());
   if (result < openingDate) {
@@ -204,11 +208,27 @@ export const getNextDate = (
     result.setSeconds(openingDate.getSeconds());
     result.setMilliseconds(0);
   }
-  if (calendarIds === undefined) {
-    calendarIds = getCalendarIds();
+  if (exceptHolidays) {
+    if (calendarIds === undefined) {
+      calendarIds = getCalendarIds();
+    }
+    while (isHoliday(result, calendarIds)) {
+      result.setDate(result.getDate() + 1);
+    }
   }
-  while (isHoliday(result, calendarIds)) {
-    result.setDate(result.getDate() + 1);
+  return result;
+};
+
+/**
+ * Get a next timeInterval
+ * @param {number} timeInterval
+ * @return {number}
+ */
+export const getNextTimeInterval = (timeInterval: number): number => {
+  const timeIntervalMin = settings.getTimeIntervalMin();
+  const result = timeInterval / settings.getTimeIntervalDecay();
+  if (result < timeIntervalMin) {
+    return timeIntervalMin;
   }
   return result;
 };

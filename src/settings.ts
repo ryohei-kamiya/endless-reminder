@@ -57,7 +57,37 @@ export const getSlackIconEmoji = (): string => {
 };
 
 export const getTimeInterval = (): number => {
-  return Number(getProperty("TIME_INTERVAL"));
+  const result = Number(getProperty("TIME_INTERVAL"));
+  if (Number.isNaN(result)) {
+    return 1440; // default TIME_INTERVAL is 1 day
+  } else {
+    return result;
+  }
+};
+
+export const getTimeIntervalDecay = (): number => {
+  const result = Number(getProperty("TIME_INTERVAL_DECAY"));
+  if (Number.isNaN(result)) {
+    return 1; // default TIME_INTERVAL_DECAY is 1
+  } else {
+    return result;
+  }
+};
+
+export const getTimeIntervalMin = (): number => {
+  const result = Number(getProperty("TIME_INTERVAL_MIN"));
+  if (Number.isNaN(result)) {
+    return 1; // default TIME_INTERVAL_MIN is 1
+  } else {
+    if (result < 1) {
+      return 1; // minimum value of TIME_INTERVAL_MIN is 1
+    }
+    const timeInterval = getTimeInterval();
+    if (timeInterval < result) {
+      return timeInterval; // maximum value of TIME_INTERVAL_MIN is TIME_INTERVAL
+    }
+    return result;
+  }
 };
 
 export const getOpeningTime = (): string => {
