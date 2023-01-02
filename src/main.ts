@@ -26,10 +26,6 @@ const getTomorrow = (now: Date): Date => {
 global.main = (): void => {
   const now = new Date();
   const tomorrow = getTomorrow(now);
-  if (calendar.isHoliday(tomorrow)) {
-    console.log("tomorrow is a holiday.");
-    return;
-  }
   const scheduledMessages = sm.getScheduledMessages(tomorrow);
   for (const scheduledMessage of scheduledMessages) {
     const date = new Date(scheduledMessage.datetime);
@@ -50,6 +46,12 @@ global.main = (): void => {
       continue;
     }
     if (!scheduledMessage.disabled) {
+      const triggerDate = calendar.getNextDate(
+        new Date(scheduledMessage.datetime),
+        0,
+        scheduledMessage.exceptHolidays
+      );
+      scheduledMessage.datetime = triggerDate.getTime();
       reminder.setReminder(scheduledMessage);
     }
   }
