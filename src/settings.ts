@@ -64,6 +64,9 @@ export const getTimeInterval = (): number => {
   if (Number.isNaN(result)) {
     return 1440; // default TIME_INTERVAL is 1 day
   } else {
+    if (result < 1) {
+      return 1; // minimum value of TIME_INTERVAL is 1
+    }
     return result;
   }
 };
