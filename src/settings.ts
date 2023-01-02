@@ -110,13 +110,19 @@ export const getMaxRepeatCount = (): number => {
 
 export const getOpeningTime = (): string => {
   const time = getProperty("OPENING_TIME");
+  if (!time) {
+    return "00:00:00";
+  }
   return utils.convertTimeToString(time);
 };
 
 export const getClosingTime = (): string => {
-  const openingTime = getOpeningTime();
   const time = getProperty("CLOSING_TIME");
+  if (!time) {
+    return "23:59:59";
+  }
   const result = utils.convertTimeToString(time);
+  const openingTime = getOpeningTime();
   if (result < openingTime) {
     return openingTime; // CLOSING_TIME must be greater or equal OPENING_TIME
   }
