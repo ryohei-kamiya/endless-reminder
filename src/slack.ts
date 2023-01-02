@@ -124,15 +124,17 @@ export type Member = {
  */
 export const sendMessageToSlack = (payload: any): string => {
   try {
-    const slackAppToken = settings.getSlackAppToken();
-    if (!slackAppToken) {
-      throw Error(`The value of slackAppToken is null but it should not be.`);
+    const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+    if (!slackBotUserOAuthToken) {
+      throw Error(
+        `The value of slackBotUserOAuthToken is null but it should not be.`
+      );
     }
     const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
       method: "post",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${slackAppToken}`,
+        Authorization: `Bearer ${slackBotUserOAuthToken}`,
       },
       payload: payload,
     };
@@ -156,15 +158,17 @@ export const sendMessageToSlack = (payload: any): string => {
  * @return {string[]}
  */
 export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   const results: string[] = [];
@@ -213,15 +217,17 @@ export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
  * @return {UserGroup[]}
  */
 export const getUserGroups = (): UserGroup[] => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   const results: UserGroup[] = [];
@@ -247,15 +253,17 @@ export const getUserGroups = (): UserGroup[] => {
  * @return {string[]}
  */
 export const getMemberIdsInUserGroup = (usergroup: string): string[] => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   const results: string[] = [];
@@ -285,15 +293,17 @@ export const getRepliesFromSlackThread = (
   channel: string,
   threadTs: string
 ): SlackMessage[] => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   const results: SlackMessage[] = [];
@@ -349,15 +359,17 @@ export const getRepliesFromSlackThread = (
  * @return {Channel[]}
  */
 export const getChannels = (): Channel[] => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   const results: Channel[] = [];
@@ -427,15 +439,17 @@ export const convertChannelNameToId = (
  * @return {Member[]}
  */
 export const getAllMembers = (): Member[] => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   const results: Member[] = [];
@@ -485,15 +499,17 @@ export const getAllMembers = (): Member[] => {
  * @return {Member|null}
  */
 export const getMember = (memberId: string): Member | null => {
-  const slackAppToken = settings.getSlackAppToken();
-  if (!slackAppToken) {
-    throw Error(`The value of slackAppToken is null but it should not be.`);
+  const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
+  if (!slackBotUserOAuthToken) {
+    throw Error(
+      `The value of slackBotUserOAuthToken is null but it should not be.`
+    );
   }
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: "get",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackAppToken}`,
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
     },
   };
   let result: Member | null = null;

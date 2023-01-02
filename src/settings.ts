@@ -30,14 +30,17 @@ export const getProperty = (propertyName: string): any => {
   if (result !== null && result !== "") {
     return result;
   }
+  const prop = PropertiesService.getScriptProperties();
+  result = prop.getProperty(propertyName);
+  if (result !== null && result !== "") {
+    return result;
+  }
   const conf = new Map(Object.entries(config));
   result = conf.get(propertyName.toLowerCase());
   if (result !== null && result !== "") {
     return result;
   }
-  const prop = PropertiesService.getScriptProperties();
-  const propertyValue = prop.getProperty(propertyName);
-  return propertyValue ?? "";
+  return "";
 };
 
 export const getBotName = (): string => {
@@ -48,8 +51,8 @@ export const getActiveChatApp = (): string => {
   return getProperty("ACTIVE_CHAT_APP").toLowerCase();
 };
 
-export const getSlackAppToken = (): string => {
-  return getProperty("SLACK_APP_TOKEN");
+export const getSlackBotUserOAuthToken = (): string => {
+  return getProperty("SLACK_BOT_USER_OAUTH_TOKEN");
 };
 
 export const getSlackIconEmoji = (): string => {

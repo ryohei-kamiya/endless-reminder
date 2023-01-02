@@ -5,7 +5,7 @@
   "spread_sheet_name_4": "settings",
   "bot_name": "PushyReminder",
   "active_chat_app": "slack",
-  "slack_app_token": "",
+  "slack_bot_user_oauth_token": "",
   "slack_icon_emoji": ":spiral_calendar_pad:",
   "time_interval": 1440,
   "opening_time": "09:00:00",
