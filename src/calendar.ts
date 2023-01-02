@@ -190,7 +190,7 @@ export const getNextDate = (
 ): Date => {
   const result = new Date(argDate);
   result.setMinutes(result.getMinutes() + timeInterval);
-  const openingDate = new Date();
+  const openingDate = new Date(argDate);
   updateDateByTimeString(openingDate, settings.getOpeningTime());
   if (result < openingDate) {
     result.setDate(openingDate.getDate());
@@ -199,7 +199,7 @@ export const getNextDate = (
     result.setSeconds(openingDate.getSeconds());
     result.setMilliseconds(0);
   }
-  const closingDate = new Date();
+  const closingDate = new Date(argDate);
   updateDateByTimeString(closingDate, settings.getClosingTime());
   if (result > closingDate) {
     result.setDate(openingDate.getDate() + 1);
