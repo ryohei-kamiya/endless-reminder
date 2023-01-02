@@ -96,6 +96,18 @@ export const getTimeIntervalMin = (): number => {
   }
 };
 
+export const getMaxRepeatCount = (): number => {
+  const result = Number(getProperty("MAX_REPEAT_COUNT"));
+  if (Number.isNaN(result)) {
+    return 0; // default MAX_REPEAT_COUNT is 0 (unlimited)
+  } else {
+    if (result < 1) {
+      return 0; // minimum value of MAX_REPEAT_COUNT is 0
+    }
+    return result;
+  }
+};
+
 export const getOpeningTime = (): string => {
   const time = getProperty("OPENING_TIME");
   return utils.convertTimeToString(time);

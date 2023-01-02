@@ -84,6 +84,7 @@ export type ScheduledMessage = {
   renotice: string;
   notRenoticeTo: string[];
   disabled: boolean;
+  repeatCount: number;
   sentMessageId: string | null;
 };
 
@@ -160,6 +161,7 @@ export const convertRecordToMessages = (
         renotice: record.renotice,
         notRenoticeTo: record.notRenoticeTo,
         disabled: record.disabled,
+        repeatCount: 0,
         sentMessageId: null,
       });
     }
@@ -394,6 +396,7 @@ export const updateScheduledMessage = (
     renotice: message.renotice,
     notRenoticeTo: message.notRenoticeTo,
     disabled: message.disabled,
+    repeatCount: message.repeatCount,
     sentMessageId: message.sentMessageId,
   };
   const _mainSheet = sheets.mainSheet();

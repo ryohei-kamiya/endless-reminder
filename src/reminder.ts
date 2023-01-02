@@ -61,6 +61,7 @@ global.remind = (event: any) => {
     scheduledMessage.sentMessageId = sendMessage(scheduledMessage);
     const updatedScheduledMessage = sm.updateScheduledMessage(scheduledMessage);
     if (!updatedScheduledMessage.disabled && updatedScheduledMessage.renotice) {
+      scheduledMessage.repeatCount++;
       scheduledMessage.sendTo = updatedScheduledMessage.sendTo;
       scheduledMessage.renotice = updatedScheduledMessage.renotice;
       scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
@@ -83,6 +84,14 @@ global.remind = (event: any) => {
       scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
       if (scheduledMessage.sendTo.length > 0) {
         sendMessage(scheduledMessage);
+        scheduledMessage.repeatCount++;
+        const maxRepeatCount = settings.getMaxRepeatCount();
+        if (
+          maxRepeatCount > 0 &&
+          scheduledMessage.repeatCount > maxRepeatCount
+        ) {
+          return;
+        }
         const date = calendar.getNextDate(
           new Date(scheduledMessage.datetime),
           scheduledMessage.timeInterval,
