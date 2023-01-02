@@ -18,8 +18,8 @@ export const getProperty = (propertyName: string): any => {
     for (let row = 1; row < tableData.getRows(); row++) {
       const name = tableData.getValue(row, 0);
       const value = tableData.getValue(row, 1);
-      if (name.toUpperCase() === propertyName) {
-        if (typeof value === "string") {
+      if (name.toUpperCase() == propertyName) {
+        if (typeof value == "string") {
           result = value.trim();
         }
         result = value;
@@ -102,8 +102,13 @@ export const getOpeningTime = (): string => {
 };
 
 export const getClosingTime = (): string => {
+  const openingTime = getOpeningTime();
   const time = getProperty("CLOSING_TIME");
-  return utils.convertTimeToString(time);
+  const result = utils.convertTimeToString(time);
+  if (result < openingTime) {
+    return openingTime; // CLOSING_TIME must be greater or equal OPENING_TIME
+  }
+  return result;
 };
 
 export const getDebug = (): boolean => {
