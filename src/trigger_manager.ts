@@ -65,7 +65,7 @@ export const deleteTriggerArguments = (triggerUid: string) => {
 export const deleteTriggerByUid = (triggerUid: string) => {
   if (
     !ScriptApp.getProjectTriggers().some(function (trigger) {
-      if (trigger.getUniqueId() === triggerUid) {
+      if (trigger.getUniqueId() == triggerUid) {
         ScriptApp.deleteTrigger(trigger);
         return true;
       }

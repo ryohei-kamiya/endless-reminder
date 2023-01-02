@@ -26,7 +26,7 @@ export const setReminder = (scheduledMessage: sm.ScheduledMessage) => {
  * @return {string}
  */
 export const sendMessage = (message: sm.ScheduledMessage): string => {
-  if (settings.getActiveChatApp() === "slack") {
+  if (settings.getActiveChatApp() == "slack") {
     const payload: slack.SlackMessageRequest = {
       channel: message.channel,
       text: "",

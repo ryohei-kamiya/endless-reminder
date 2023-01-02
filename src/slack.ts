@@ -325,13 +325,13 @@ export const getRepliesFromSlackThread = (
       }
       let existsNewReply = false;
       for (const reply of json["messages"]) {
-        if (reply.thread_ts === reply.ts) {
+        if (reply.thread_ts == reply.ts) {
           continue;
         }
-        if (reply.ts === threadTs) {
+        if (reply.ts == threadTs) {
           continue;
         }
-        if (results.some((result) => result.ts === reply.ts)) {
+        if (results.some((result) => result.ts == reply.ts)) {
           continue;
         }
         results.push(reply);
@@ -391,7 +391,7 @@ export const getChannels = (): Channel[] => {
       }
       let existsNewChannel = false;
       for (const channel of json["channels"]) {
-        if (results.some((result) => result.id === channel.id)) {
+        if (results.some((result) => result.id == channel.id)) {
           continue;
         }
         results.push(channel);
@@ -427,7 +427,7 @@ export const convertChannelNameToId = (
     channels = getChannels();
   }
   for (const channel of channels) {
-    if (channel.name === name) {
+    if (channel.name == name) {
       return channel.id;
     }
   }
@@ -471,7 +471,7 @@ export const getAllMembers = (): Member[] => {
       }
       let existsNewMember = false;
       for (const member of json["members"]) {
-        if (results.some((result) => result.id === member.id)) {
+        if (results.some((result) => result.id == member.id)) {
           continue;
         }
         results.push(member);
@@ -535,7 +535,7 @@ export const getMember = (memberId: string): Member | null => {
 export const isBot = (memberId: string): boolean => {
   const member = getMember(memberId);
   if (member) {
-    if (member.id === memberId) {
+    if (member.id == memberId) {
       if (member.is_bot) {
         return true;
       } else {
@@ -558,7 +558,7 @@ export const getActualMessageToSlack = (
 ): string => {
   let message = "";
   for (const member of sendTo) {
-    if (member.toLowerCase() === "channel" || member.toLowerCase() === "here") {
+    if (member.toLowerCase() == "channel" || member.toLowerCase() == "here") {
       message = `${message} <!${member}>`;
     } else {
       message = `${message} <@${member}>`;
@@ -584,7 +584,7 @@ export const isMemberInCompletionMessageSenders = (
   completionKeywords: string[]
 ): boolean => {
   for (const message of messages) {
-    if (message.user === member) {
+    if (message.user == member) {
       if (utils.hasSomeKeywordsInText(message.text, completionKeywords)) {
         return true;
       }
@@ -605,7 +605,7 @@ export const getMemberIdsInUserGroups = (
   const results: string[] = [];
   for (const userGroupId of targetUserGroupIds) {
     const filteredUserGroups = allUserGroups.filter(
-      (element) => element.id === userGroupId || element.handle === userGroupId
+      (element) => element.id == userGroupId || element.handle == userGroupId
     );
     if (filteredUserGroups.length > 0) {
       const userGroup = filteredUserGroups[0];

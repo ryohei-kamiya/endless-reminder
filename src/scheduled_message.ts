@@ -183,7 +183,7 @@ export const getScheduledMessages = (
   }
   const tableData = sheets.getTableData(_mainSheet);
   const slackChannels: slack.Channel[] =
-    settings.getActiveChatApp() === "slack" ? slack.getChannels() : [];
+    settings.getActiveChatApp() == "slack" ? slack.getChannels() : [];
   for (let row = 1; row < tableData.getRows(); row++) {
     const record = getScheduledMessageRecord(tableData, row);
     if (!Number.isInteger(record.id)) {
@@ -193,7 +193,7 @@ export const getScheduledMessages = (
       continue;
     }
     if (argDate) {
-      if (settings.getActiveChatApp() === "slack") {
+      if (settings.getActiveChatApp() == "slack") {
         record.channel = slack.convertChannelNameToId(
           record.channel,
           slackChannels
@@ -214,7 +214,7 @@ export const getScheduledMessages = (
       );
       results = results.concat(messages);
     } else {
-      if (settings.getActiveChatApp() === "slack") {
+      if (settings.getActiveChatApp() == "slack") {
         record.channel = slack.convertChannelNameToId(
           record.channel,
           slackChannels
@@ -256,7 +256,7 @@ export const getCompletionKeywords = (): string[] => {
  * @return {string[]}
  */
 export const getMemberIdsOnChannel = (channel: string): string[] => {
-  if (settings.getActiveChatApp() === "slack") {
+  if (settings.getActiveChatApp() == "slack") {
     // get memberIds on this channel
     return slack.getMemberIdsOnSlackChannel(channel);
   }
@@ -274,10 +274,10 @@ export const getActualNotRenoticeTo = (
   allMemberIds: string[]
 ): string[] => {
   let result: string[] = [];
-  if (settings.getActiveChatApp() === "slack") {
+  if (settings.getActiveChatApp() == "slack") {
     if (
       message.notRenoticeTo.some(
-        (memberId) => memberId === "channel" || memberId == "here"
+        (memberId) => memberId == "channel" || memberId == "here"
       )
     ) {
       result = allMemberIds;
@@ -315,10 +315,10 @@ export const getActualSendTo = (
   allMemberIds: string[]
 ): string[] => {
   let result: string[] = [];
-  if (settings.getActiveChatApp() === "slack") {
+  if (settings.getActiveChatApp() == "slack") {
     if (
       message.sendTo.some(
-        (memberId) => memberId === "channel" || memberId === "here"
+        (memberId) => memberId == "channel" || memberId == "here"
       )
     ) {
       const sendTo = allMemberIds.filter(
