@@ -9,7 +9,8 @@ export type ScheduledMessageRecord = {
   id: number;
   years: number[];
   months: number[];
-  numOfBizDays: number;
+  days: number;
+  exceptHolidays: boolean;
   hms: string;
   channel: string;
   sendTo: string[];
@@ -36,8 +37,10 @@ export const getScheduledMessageRecord = (
   const years = calendar.parseYearsString(tableData.getValue(row, col++));
   // get months from mainSheet
   const months = calendar.parseMonthsString(tableData.getValue(row, col++));
-  // get number of business days from the beginning of the month from mainSheet
-  const numOfBizDays = Number(tableData.getValue(row, col++));
+  // get days from mainSheet
+  const days = Number(tableData.getValue(row, col++));
+  // get exceptHolidays from mainSheet(days are interpreted as number of business days from the beginning of the month if exceptHolidays is true)
+  const exceptHolidays = Boolean(tableData.getValue(row, col++));
   // get the scheduled message sending time from mainSheet
   const hms = utils.convertTimeToString(tableData.getValue(row, col++));
   // get the channel(id or name) to send message from mainSheet
@@ -58,7 +61,8 @@ export const getScheduledMessageRecord = (
     id: scheduledMessageId,
     years: years,
     months: months,
-    numOfBizDays: numOfBizDays,
+    days: days,
+    exceptHolidays: exceptHolidays,
     hms: hms,
     channel: channel,
     sendTo: sendTo,
@@ -124,12 +128,19 @@ export const convertRecordToMessages = (
           continue;
         }
       }
-      const date: Date = calendar.convertBusinessDaysToDate(
+      let date: Date = new Date(
         record.years[j],
-        record.months[k],
-        record.numOfBizDays,
-        calendarIds
+        record.months[k] - 1,
+        record.days
       );
+      if (record.exceptHolidays) {
+        date = calendar.convertBusinessDaysToDate(
+          record.years[j],
+          record.months[k],
+          record.days,
+          calendarIds
+        );
+      }
       if (filterByDate !== undefined) {
         if (!filterByDate(date.getDate())) {
           continue;
