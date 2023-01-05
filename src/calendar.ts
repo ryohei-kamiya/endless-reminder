@@ -55,12 +55,23 @@ export const updateDateByTimeString = (date: Date, timeStr: string): void => {
     .filter((value) => typeof value == "number");
   if (hms.length > 0) {
     date.setHours(hms[0]);
+  } else {
+    date.setHours(0);
   }
   if (hms.length > 1) {
     date.setMinutes(hms[1]);
+  } else {
+    date.setMinutes(0);
   }
   if (hms.length > 2) {
     date.setSeconds(hms[2]);
+  } else {
+    date.setSeconds(0);
+  }
+  if (hms.length > 3) {
+    date.setMilliseconds(hms[3]);
+  } else {
+    date.setMilliseconds(0);
   }
 };
 
@@ -199,14 +210,12 @@ export const getNextDate = (
     result.setSeconds(openingDate.getSeconds());
     result.setMilliseconds(0);
   }
+  const nextOpeningDate = new Date(openingDate);
+  nextOpeningDate.setDate(openingDate.getDate() + 1);
   const closingDate = new Date(argDate);
   updateDateByTimeString(closingDate, settings.getClosingTime());
-  if (result > closingDate) {
-    result.setDate(openingDate.getDate() + 1);
-    result.setHours(openingDate.getHours());
-    result.setMinutes(openingDate.getMinutes());
-    result.setSeconds(openingDate.getSeconds());
-    result.setMilliseconds(0);
+  if (closingDate < result && result < nextOpeningDate) {
+    result.setTime(nextOpeningDate.getTime());
   }
   if (exceptHolidays) {
     if (calendarIds === undefined) {

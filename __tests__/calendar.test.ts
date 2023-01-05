@@ -1,4 +1,5 @@
 import * as calendar from "../src/calendar";
+import * as settings from "../src/settings";
 
 describe("unit tests for parseMonthsString()", () => {
   it("if '*' in args then return [1,2,...,12]", () => {
@@ -157,5 +158,102 @@ describe("unit tests for convertBusinessDaysToDate()", () => {
     ).toEqual(new Date("2022-12-06T00:00:00+0900"));
     expect(getCalendarIdsMock).toHaveBeenCalledTimes(0);
     expect(isHolidayMock).toHaveBeenCalledTimes(6);
+  });
+});
+
+describe("unit tests for getNextDate()", () => {
+  it("if argDate==Date('2022-12-09T12:00:00+0900') and timeInterval==1440 and exceptHolidays==true and calendarIds==undefined then return Date('2022-12-12T12:00:00+0900')", () => {
+    const getCalendarIdsMock = jest
+      .spyOn(calendar, "getCalendarIds")
+      .mockReset()
+      .mockReturnValue(["dummy_calendar_id_1", "dummy_calendar_id_2"]);
+    const isHolidayMock = jest
+      .spyOn(calendar, "isHoliday")
+      .mockReset()
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(false);
+    const getOpeningTimeMock = jest
+      .spyOn(settings, "getOpeningTime")
+      .mockReset()
+      .mockReturnValue("09:00:00");
+    const getClosingTimeMock = jest
+      .spyOn(settings, "getClosingTime")
+      .mockReset()
+      .mockReturnValue("18:00:00");
+    expect(
+      calendar.getNextDate(
+        new Date("2022-12-09T12:00:00+0900"),
+        1440,
+        true,
+        undefined
+      )
+    ).toEqual(new Date("2022-12-12T12:00:00+0900"));
+    expect(getCalendarIdsMock).toHaveBeenCalledTimes(1);
+    expect(isHolidayMock).toHaveBeenCalledTimes(3);
+    expect(getOpeningTimeMock).toHaveBeenCalledTimes(1);
+    expect(getClosingTimeMock).toHaveBeenCalledTimes(1);
+  });
+  it("if argDate==Date('2022-12-09T12:00:00+0900') and timeInterval==360 and exceptHolidays==true and calendarIds==undefined then return Date('2022-12-09T18:00:00+0900')", () => {
+    const getCalendarIdsMock = jest
+      .spyOn(calendar, "getCalendarIds")
+      .mockReset()
+      .mockReturnValue(["dummy_calendar_id_1", "dummy_calendar_id_2"]);
+    const isHolidayMock = jest
+      .spyOn(calendar, "isHoliday")
+      .mockReset()
+      .mockReturnValueOnce(false);
+    const getOpeningTimeMock = jest
+      .spyOn(settings, "getOpeningTime")
+      .mockReset()
+      .mockReturnValue("09:00:00");
+    const getClosingTimeMock = jest
+      .spyOn(settings, "getClosingTime")
+      .mockReset()
+      .mockReturnValue("18:00:00");
+    expect(
+      calendar.getNextDate(
+        new Date("2022-12-09T12:00:00+0900"),
+        360,
+        true,
+        undefined
+      )
+    ).toEqual(new Date("2022-12-09T18:00:00+0900"));
+    expect(getCalendarIdsMock).toHaveBeenCalledTimes(1);
+    expect(isHolidayMock).toHaveBeenCalledTimes(1);
+    expect(getOpeningTimeMock).toHaveBeenCalledTimes(1);
+    expect(getClosingTimeMock).toHaveBeenCalledTimes(1);
+  });
+  it("if argDate==Date('2022-12-09T12:00:00+0900') and timeInterval==361 and exceptHolidays==true and calendarIds==undefined then return Date('2022-12-12T09:00:00+0900')", () => {
+    const getCalendarIdsMock = jest
+      .spyOn(calendar, "getCalendarIds")
+      .mockReset()
+      .mockReturnValue(["dummy_calendar_id_1", "dummy_calendar_id_2"]);
+    const isHolidayMock = jest
+      .spyOn(calendar, "isHoliday")
+      .mockReset()
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(false);
+    const getOpeningTimeMock = jest
+      .spyOn(settings, "getOpeningTime")
+      .mockReset()
+      .mockReturnValue("09:00:00");
+    const getClosingTimeMock = jest
+      .spyOn(settings, "getClosingTime")
+      .mockReset()
+      .mockReturnValue("18:00:00");
+    expect(
+      calendar.getNextDate(
+        new Date("2022-12-09T12:00:00+0900"),
+        361,
+        true,
+        undefined
+      )
+    ).toEqual(new Date("2022-12-12T09:00:00+0900"));
+    expect(getCalendarIdsMock).toHaveBeenCalledTimes(1);
+    expect(isHolidayMock).toHaveBeenCalledTimes(3);
+    expect(getOpeningTimeMock).toHaveBeenCalledTimes(1);
+    expect(getClosingTimeMock).toHaveBeenCalledTimes(1);
   });
 });
