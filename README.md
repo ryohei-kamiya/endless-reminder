@@ -1,7 +1,7 @@
 # PushyReminder
 
 This is a Google Apps Script that will permanently keep reminding persons on chat apps who haven't completed the task until the task is complete.
-It frees mankind from unproductive tasks that repeatedly remind unresponsive persons.
+It frees humanity from unproductive tasks that repeatedly remind unresponsive persons.
 
 <img width="491" alt="pushy-reminder-example" src="https://user-images.githubusercontent.com/2719533/211297547-12ef1e0e-5b2b-40f3-9c87-ea0eac5780d0.png">
 
