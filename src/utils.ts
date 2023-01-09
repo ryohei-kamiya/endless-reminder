@@ -9,7 +9,7 @@ export const hasSomeKeywordsInText = (
   keywords: string[]
 ): boolean => {
   for (const keyword of keywords) {
-    if (text.indexOf(keyword) !== -1) {
+    if (text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1) {
       return true;
     }
   }
