@@ -8,7 +8,7 @@
     "test:coverage": "npm run lint && jest --coverage",
     "watch": "webpack --watch",
     "build": "npm run test && webpack",
-    "deploy": "npm run build && clasp push"
+    "deploy": "npm run build && clasp push --force"
   },
   "config": {
     "commitizen": {
