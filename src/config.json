@@ -7,6 +7,7 @@
   "active_chat_app": "slack",
   "slack_bot_user_oauth_token": "",
   "slack_icon_emoji": ":spiral_calendar_pad:",
+  "chatwork_api_token": "",
   "time_interval": 1440,
   "opening_time": "00:00:00",
   "closing_time": "23:59:59",
