@@ -40,6 +40,25 @@ export type Message = {
   update_time: number;
 };
 
+export type Task = {
+  task_id: number;
+  account: {
+    account_id: number;
+    name: string;
+    avatar_image_url: string;
+  };
+  assigned_by_account: {
+    account_id: number;
+    name: string;
+    avatar_image_url: string;
+  };
+  message_id: string;
+  body: string;
+  limit_time: number;
+  status: string;
+  limit_type: string;
+};
+
 /**
  * Get array of Room
  * @return {Room[]}
@@ -126,6 +145,42 @@ export const getMessageInRoom = (
     throw Error(`The value of chatworkAPIToken is null but it should not be.`);
   }
   const url = `https://api.chatwork.com/v2/rooms/${roomId}/messages/${messageId}`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+    "x-chatworktoken": chatworkAPIToken,
+  };
+  const httpClient = new HttpClient();
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      const res = httpClient.get(url, null, headers);
+      const json = res.getContentJson();
+      if (!json) {
+        return null;
+      }
+      return json;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return null;
+};
+
+/**
+ * Get a Task in a Room
+ * @param {number} roomId
+ * @param {number} taskId
+ * @return {Message|null}
+ */
+export const getTaskInRoom = (
+  roomId: number,
+  taskId: number
+): Message | null => {
+  const chatworkAPIToken = settings.getChatworkAPIToken();
+  if (!chatworkAPIToken) {
+    throw Error(`The value of chatworkAPIToken is null but it should not be.`);
+  }
+  const url = `https://api.chatwork.com/v2/rooms/${roomId}/tasks/${taskId}`;
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded",
     Accept: "application/json",
