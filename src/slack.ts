@@ -506,7 +506,7 @@ export const getMember = (memberId: string): Member | null => {
   }
   let result: Member | null = null;
   const httpClient = new HttpClient();
-  const url = `https://slack.com/api/users.info?user=${memberId}`;
+  const url = `https://slack.com/api/users.info`;
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded",
     Authorization: `Bearer ${slackBotUserOAuthToken}`,
