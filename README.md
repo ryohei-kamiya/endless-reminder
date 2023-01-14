@@ -61,9 +61,10 @@ F | Sending time | The "time" to post the message. Enter the hour (hh), minute (
 G | Channel | Enter the name of the channel to post the message to.
 H | Send to | Enter the message destinations ("member ID", "channel", "here", etc.) separated by commas. Here, "member ID" is an ID that can be obtained from "Copy member ID" in the user's profile field in Slack.
 I | Message | The content of the message to send. Please enter the details of the task you want to request.
-J | Remind message | Enter a message (reminder message) to be sent periodically to persons who have not completed the task. If you do not enter anything, the task status will not be checked and no reminder message will be sent.
-K | Not remind to | Enter the "member ID" of the person you want to exclude from the message recipients in column J. If you enter "channel" in column H, you will basically target all participants in the channel entered in column G and keep sending the reminder message in column J to those who have not completed the task. However, by entering a specific person's "member ID" in column K, you can exclude that person from being sent reminders.
-L | disabled | A flag to temporarily disable post settings. Enter "TRUE" or "FALSE". If "TRUE", the setting is temporarily disabled and can be forced to stop sending the message defined in that row. If nothing is entered, it is interpreted as "FALSE (enabled)".
+J | Waiting minutes | Wait time in minutes before sending reminder message.
+K | Reminder message | Enter a reminder message to be sent periodically to persons who have not completed the task. If you do not enter anything, the task status will not be checked and no reminder message will be sent.
+L | Not remind to | Enter the "member ID" of the person you want to exclude from the message recipients in column H. If you enter "channel" in column H, you will basically target all participants in the channel entered in column G and keep sending the reminder message in column K to those who have not completed the task. However, by entering a specific person's "member ID" in this column, you can exclude that person from being sent reminders.
+M | disabled | A flag to temporarily disable post settings. Enter "TRUE" or "FALSE". If "TRUE", the setting is temporarily disabled and can be forced to stop sending the message defined in that row. If nothing is entered, it is interpreted as "FALSE (enabled)".
 
 _Table2: holiday_calendars sheet_
 Column | Possible values | Description

@@ -17,6 +17,32 @@ export const hasSomeKeywordsInText = (
 };
 
 /**
+ * Cast an any type data to a number safety
+ * @param {any} data - required
+ * @param {number} minValue - required: minimum value of the number
+ * @param {number} maxValue - required: maximum value of the number
+ * @param {number} defaultValue - optional: default is 0
+ * @return {number}
+ */
+export const getSafeNumber = (
+  data: any,
+  minValue: number,
+  maxValue: number,
+  defaultValue = 0
+): number => {
+  const num = Number(data);
+  if (Number.isNaN(num)) {
+    return defaultValue;
+  }
+  if (num < minValue) {
+    return minValue;
+  } else if (num > maxValue) {
+    return maxValue;
+  }
+  return num;
+};
+
+/**
  * Get hours or minutes or seconds value from array
  * @param {any[]} arr
  * @param {number} index

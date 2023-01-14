@@ -67,13 +67,10 @@ global.remind = (event: any) => {
       scheduledMessage.notRenoticeTo = updatedScheduledMessage.notRenoticeTo;
       const date = calendar.getNextDate(
         new Date(scheduledMessage.datetime),
-        scheduledMessage.timeInterval,
+        scheduledMessage.waitingMinutes,
         scheduledMessage.exceptHolidays
       );
       scheduledMessage.datetime = date.getTime();
-      scheduledMessage.timeInterval = calendar.getNextTimeInterval(
-        scheduledMessage.timeInterval
-      );
       setReminder(scheduledMessage);
     }
   } else {

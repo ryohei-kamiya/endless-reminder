@@ -15,6 +15,7 @@ export type ScheduledMessageRecord = {
   channel: string;
   sendTo: string[];
   message: string;
+  waitingMinutes: number;
   renotice: string;
   notRenoticeTo: string[];
   disabled: boolean;
@@ -38,7 +39,7 @@ export const getScheduledMessageRecord = (
   // get months from mainSheet
   const months = calendar.parseMonthsString(tableData.getValue(row, col++));
   // get days from mainSheet
-  const days = Number(tableData.getValue(row, col++));
+  const days = utils.getSafeNumber(tableData.getValue(row, col++), 1, 31, 1);
   // get exceptHolidays from mainSheet(days are interpreted as number of business days from the beginning of the month if exceptHolidays is true)
   const exceptHolidays = Boolean(tableData.getValue(row, col++));
   // get the scheduled message sending time from mainSheet
@@ -50,6 +51,13 @@ export const getScheduledMessageRecord = (
   const sendTo = convertReceiverStringToArray(sendToStr);
   // get the message from mainSheet
   const message = String(tableData.getValue(row, col++));
+  // get the waitingMinutes from mainSheet
+  const waitingMinutes = utils.getSafeNumber(
+    tableData.getValue(row, col++),
+    1,
+    525960,
+    1
+  );
   // get the re-notice message from mainSheet
   const renotice = String(tableData.getValue(row, col++));
   // get the excepted receivers from mainSheet
@@ -67,6 +75,7 @@ export const getScheduledMessageRecord = (
     channel: channel,
     sendTo: sendTo,
     message: message,
+    waitingMinutes: waitingMinutes,
     renotice: renotice,
     notRenoticeTo: notRenoticeTo,
     disabled: disabled,
@@ -81,6 +90,7 @@ export type ScheduledMessage = {
   channel: string;
   sendTo: string[];
   message: string;
+  waitingMinutes: number;
   renotice: string;
   notRenoticeTo: string[];
   disabled: boolean;
@@ -158,6 +168,7 @@ export const convertRecordToMessages = (
         channel: record.channel,
         sendTo: record.sendTo,
         message: record.message,
+        waitingMinutes: record.waitingMinutes,
         renotice: record.renotice,
         notRenoticeTo: record.notRenoticeTo,
         disabled: record.disabled,
@@ -393,6 +404,7 @@ export const updateScheduledMessage = (
     channel: message.channel,
     sendTo: message.sendTo,
     message: message.message,
+    waitingMinutes: message.waitingMinutes,
     renotice: message.renotice,
     notRenoticeTo: message.notRenoticeTo,
     disabled: message.disabled,
@@ -417,6 +429,7 @@ export const updateScheduledMessage = (
     }
     const channelMemberIds = getMemberIdsOnChannel(result.channel);
     result.message = record.message;
+    result.waitingMinutes = record.waitingMinutes;
     result.renotice = record.renotice;
     result.notRenoticeTo = record.notRenoticeTo;
     result.notRenoticeTo = getActualNotRenoticeTo(result, channelMemberIds);
