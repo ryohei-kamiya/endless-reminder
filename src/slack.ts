@@ -1,5 +1,6 @@
 import * as settings from "./settings";
 import * as utils from "./utils";
+import { HttpClient } from "./http_client";
 
 export type SlackMessageRequest = {
   channel: string;
@@ -130,19 +131,17 @@ export const sendMessageToSlack = (payload: any): string => {
         `The value of slackBotUserOAuthToken is null but it should not be.`
       );
     }
-    const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-      method: "post",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Bearer ${slackBotUserOAuthToken}`,
-      },
-      payload: payload,
-    };
+    const httpClient = new HttpClient();
     const url = "https://slack.com/api/chat.postMessage";
-    const res = UrlFetchApp.fetch(url, options);
-    const resBody = JSON.parse(res.getContentText());
-    if (resBody["ok"]) {
-      return resBody["ts"];
+    const headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${slackBotUserOAuthToken}`,
+    };
+    const body = payload;
+    const res = httpClient.post(url, body, headers);
+    const json = res.getContentJson();
+    if (json["ok"]) {
+      return json["ts"];
     } else {
       return "";
     }
@@ -164,27 +163,25 @@ export const getMemberIdsOnSlackChannel = (channel: string): string[] => {
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
-  };
   const results: string[] = [];
-  const baseQueryString = `?channel=${channel}&limit=100`;
-  let queryString = "";
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/conversations.members`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
+  };
   let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
+      const params: { channel: string; limit: number; cursor?: string } = {
+        channel: channel,
+        limit: 100,
+      };
       if (nextCursor) {
-        queryString = `${baseQueryString}&cursor=${nextCursor}`;
-      } else {
-        queryString = `${baseQueryString}`;
+        params.cursor = nextCursor;
       }
-      const url = `https://slack.com/api/conversations.members${queryString}`;
-      const res = UrlFetchApp.fetch(url, options);
-      const json = JSON.parse(res.getContentText());
+      const res = httpClient.get(url, params, headers);
+      const json = res.getContentJson();
       if (!json || !json["ok"]) {
         return results;
       }
@@ -223,18 +220,16 @@ export const getUserGroups = (): UserGroup[] => {
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/usergroups.list`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
   };
   const results: UserGroup[] = [];
   try {
-    const url = `https://slack.com/api/usergroups.list`;
-    const res = UrlFetchApp.fetch(url, options);
-    const json = JSON.parse(res.getContentText());
+    const res = httpClient.get(url, null, headers);
+    const json = res.getContentJson();
     if (!json || !json["ok"]) {
       return results;
     }
@@ -259,18 +254,17 @@ export const getMemberIdsInUserGroup = (usergroup: string): string[] => {
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/usergroups.users.list`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
   };
+  const params = { usergroup: usergroup };
   const results: string[] = [];
   try {
-    const url = `https://slack.com/api/usergroups.users.list?usergroup=${usergroup}`;
-    const res = UrlFetchApp.fetch(url, options);
-    const json = JSON.parse(res.getContentText());
+    const res = httpClient.get(url, params, headers);
+    const json = res.getContentJson();
     if (!json || !json["ok"]) {
       return results;
     }
@@ -299,27 +293,31 @@ export const getRepliesFromSlackThread = (
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
-  };
   const results: SlackMessage[] = [];
-  const baseQueryString = `?channel=${channel}&ts=${threadTs}&limit=100`;
-  let queryString = "";
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/conversations.replies`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
+  };
   let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
+      const params: {
+        channel: string;
+        ts: string;
+        limit: number;
+        cursor?: string;
+      } = {
+        channel: channel,
+        ts: threadTs,
+        limit: 100,
+      };
       if (nextCursor) {
-        queryString = `${baseQueryString}&cursor=${nextCursor}`;
-      } else {
-        queryString = `${baseQueryString}`;
+        params.cursor = nextCursor;
       }
-      const url = `https://slack.com/api/conversations.replies${queryString}`;
-      const res = UrlFetchApp.fetch(url, options);
-      const json = JSON.parse(res.getContentText());
+      const res = httpClient.get(url, params, headers);
+      const json = res.getContentJson();
       if (!json || !json["ok"]) {
         return results;
       }
@@ -365,27 +363,31 @@ export const getChannels = (): Channel[] => {
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
-  };
   const results: Channel[] = [];
-  const baseQueryString = `?exclude_archived=true&types=public_channel%2Cprivate_channel%2Cmpim%2Cim&limit=100`;
-  let queryString = "";
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/conversations.list`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
+  };
   let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
+      const params: {
+        exclude_archived: boolean;
+        types: string;
+        limit: number;
+        cursor?: string;
+      } = {
+        exclude_archived: true,
+        types: "public_channel%2Cprivate_channel%2Cmpim%2Cim",
+        limit: 100,
+      };
       if (nextCursor) {
-        queryString = `${baseQueryString}&cursor=${nextCursor}`;
-      } else {
-        queryString = `${baseQueryString}`;
+        params.cursor = nextCursor;
       }
-      const url = `https://slack.com/api/conversations.list${queryString}`;
-      const res = UrlFetchApp.fetch(url, options);
-      const json = JSON.parse(res.getContentText());
+      const res = httpClient.get(url, params, headers);
+      const json = res.getContentJson();
       if (!json || !json["ok"]) {
         return results;
       }
@@ -445,27 +447,24 @@ export const getAllMembers = (): Member[] => {
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
-  };
   const results: Member[] = [];
-  const baseQueryString = `?limit=100`;
-  let queryString = "";
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/users.list`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
+  };
   let nextCursor = "";
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
+      const params: { limit: number; cursor?: string } = {
+        limit: 100,
+      };
       if (nextCursor) {
-        queryString = `${baseQueryString}&cursor=${nextCursor}`;
-      } else {
-        queryString = `${baseQueryString}`;
+        params.cursor = nextCursor;
       }
-      const url = `https://slack.com/api/users.list${queryString}`;
-      const res = UrlFetchApp.fetch(url, options);
-      const json = JSON.parse(res.getContentText());
+      const res = httpClient.get(url, params, headers);
+      const json = res.getContentJson();
       if (!json || !json["ok"]) {
         return results;
       }
@@ -505,18 +504,19 @@ export const getMember = (memberId: string): Member | null => {
       `The value of slackBotUserOAuthToken is null but it should not be.`
     );
   }
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: "get",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${slackBotUserOAuthToken}`,
-    },
-  };
   let result: Member | null = null;
+  const httpClient = new HttpClient();
+  const url = `https://slack.com/api/users.info?user=${memberId}`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Bearer ${slackBotUserOAuthToken}`,
+  };
+  const params = {
+    user: memberId,
+  };
   try {
-    const url = `https://slack.com/api/users.info?user=${memberId}`;
-    const res = UrlFetchApp.fetch(url, options);
-    const json = JSON.parse(res.getContentText());
+    const res = httpClient.get(url, params, headers);
+    const json = res.getContentJson();
     if (!json || !json["ok"]) {
       return result;
     }
