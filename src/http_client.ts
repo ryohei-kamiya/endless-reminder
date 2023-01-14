@@ -32,7 +32,9 @@ export class HTTPClientResponse {
 }
 
 export class HttpClient {
-  constructor() {}
+  constructor() {
+    // do nothing.
+  }
 
   convertParamsToQueryString(params: any = null): string {
     if (params === null) {
