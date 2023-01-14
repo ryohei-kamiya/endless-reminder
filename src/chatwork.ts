@@ -28,6 +28,18 @@ export type Member = {
   avatar_image_url: string;
 };
 
+export type Message = {
+  message_id: string;
+  account: {
+    account_id: number;
+    name: string;
+    avatar_image_url: string;
+  };
+  body: string;
+  send_time: number;
+  update_time: number;
+};
+
 /**
  * Get array of Room
  * @return {Room[]}
@@ -97,4 +109,40 @@ export const getMembersInRoom = (roomId: number): Member[] => {
     }
   }
   return results;
+};
+
+/**
+ * Get a Message in a Room
+ * @param {number} roomId
+ * @param {number} messageId
+ * @return {Message|null}
+ */
+export const getMessageInRoom = (
+  roomId: number,
+  messageId: number
+): Message | null => {
+  const chatworkAPIToken = settings.getChatworkAPIToken();
+  if (!chatworkAPIToken) {
+    throw Error(`The value of chatworkAPIToken is null but it should not be.`);
+  }
+  const url = `https://api.chatwork.com/v2/rooms/${roomId}/messages/${messageId}`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+    "x-chatworktoken": chatworkAPIToken,
+  };
+  const httpClient = new HttpClient();
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      const res = httpClient.get(url, null, headers);
+      const json = res.getContentJson();
+      if (!json) {
+        return null;
+      }
+      return json;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return null;
 };
