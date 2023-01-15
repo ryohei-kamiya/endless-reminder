@@ -546,7 +546,7 @@ export const isBot = (memberId: string): boolean => {
 };
 
 /**
- * Get actual menberIds of notRenoticeTo
+ * Get actual memberIds of notRenoticeTo
  * @param {string[]} notRenoticeTo
  * @param {string[]} allMemberIds
  * @return {string[]}
@@ -585,7 +585,7 @@ export const getActualNotRenoticeTo = (
 };
 
 /**
- * Get actual menberIds of sendTo
+ * Get actual memberIds of sendTo
  * @param {string[]} sendTo
  * @param {string[]} notRenoticeTo
  * @param {string[]} allMemberIds
