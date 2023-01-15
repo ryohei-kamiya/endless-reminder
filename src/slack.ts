@@ -119,11 +119,11 @@ export type Member = {
 };
 
 /**
- * Send a message to slack.
+ * Post a message to slack.
  *
  * @param {*} payload
  */
-export const sendMessageToSlack = (payload: any): string => {
+export const postMessage = (payload: any): string => {
   try {
     const slackBotUserOAuthToken = settings.getSlackBotUserOAuthToken();
     if (!slackBotUserOAuthToken) {

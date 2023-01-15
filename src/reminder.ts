@@ -39,7 +39,7 @@ export const sendMessage = (message: sm.ScheduledMessage): string => {
     } else {
       payload.text = slack.getActualMessage(message.sendTo, message.message);
     }
-    return slack.sendMessageToSlack(payload);
+    return slack.postMessage(payload);
   }
   return "";
 };
