@@ -342,3 +342,21 @@ export const convertRoomlNameToId = (name: string, rooms: Room[]): string => {
   }
   return name;
 };
+
+/**
+ * Convert the member name to id.
+ * @param {string} name
+ * @param {Member[]} members
+ * @return {string}
+ */
+export const convertMemberNameToId = (
+  name: string,
+  members: Member[]
+): string => {
+  for (const member of members) {
+    if (member.name == name) {
+      return String(member.account_id);
+    }
+  }
+  return name;
+};
