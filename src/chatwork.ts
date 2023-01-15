@@ -362,3 +362,58 @@ export const convertMemberNameToId = (
   }
   return name;
 };
+
+/**
+ * Convert the member id to name.
+ * @param {string} memberId
+ * @param {Member[]} members
+ * @return {string}
+ */
+export const convertMemberIdToName = (
+  memberId: string,
+  members: Member[]
+): string => {
+  for (const member of members) {
+    if (String(member.account_id) === memberId) {
+      return member.name;
+    } else if (member.chatwork_id === memberId) {
+      return member.name;
+    }
+  }
+  return memberId;
+};
+
+/**
+ * Get the actual message
+ * @param {string[]} sendTo
+ * @param {string} text
+ * @param {Member[]} members
+ * @param {string|null} quoteMessageText
+ * @returns
+ */
+export const getActualMessage = (
+  sendTo: string[],
+  text: string,
+  members: Member[],
+  quoteMessageText: string | null = null
+): string => {
+  let message = "";
+  for (const to of sendTo) {
+    if (to.toLowerCase() === "all" || to.toLowerCase() === "toall") {
+      message = `${message} [toall]`;
+    } else {
+      const memberId = convertMemberNameToId(to, members);
+      const memberName = convertMemberNameToId(memberId, members);
+      message = `${message} [To:${memberId}]${memberName}`;
+    }
+  }
+  message = message.trim();
+  if (message.length > 0) {
+    message += "\n";
+  }
+  message += text;
+  if (quoteMessageText) {
+    message = quoteMessageText + "\n" + message;
+  }
+  return message;
+};
