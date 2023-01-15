@@ -170,12 +170,9 @@ export const getMessageInRoom = (
  * Get a Task in a Room
  * @param {number} roomId
  * @param {number} taskId
- * @return {Message|null}
+ * @return {Task|null}
  */
-export const getTaskInRoom = (
-  roomId: number,
-  taskId: number
-): Message | null => {
+export const getTaskInRoom = (roomId: number, taskId: number): Task | null => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
   if (!chatworkAPIToken) {
     throw Error(`The value of chatworkAPIToken is null but it should not be.`);
