@@ -198,3 +198,50 @@ export const getTaskInRoom = (roomId: number, taskId: number): Task | null => {
   }
   return null;
 };
+
+/**
+ * Post a Task in a Room
+ * @param {number} roomId - required
+ * @param {string} text - required
+ * @param {number[]} memberIds - required
+ * @param {number|null} limitUnixTimeSec - optional
+ * @return {string[]|null}
+ */
+export const postTaskInRoom = (
+  roomId: number,
+  text: string,
+  memberIds: number[],
+  limitUnixTimeSec: number | null = null
+): number[] | null => {
+  const chatworkAPIToken = settings.getChatworkAPIToken();
+  if (!chatworkAPIToken) {
+    throw Error(`The value of chatworkAPIToken is null but it should not be.`);
+  }
+  const url = `https://api.chatwork.com/v2/rooms/${roomId}/tasks`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+    "x-chatworktoken": chatworkAPIToken,
+  };
+  const limitType = limitUnixTimeSec === null ? "none" : "time";
+  const httpClient = new HttpClient();
+  const body = {
+    body: text,
+    to_ids: memberIds.map((memberId) => String(memberId)).join(","),
+    limit: limitUnixTimeSec,
+    limit_type: limitType,
+  };
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      const res = httpClient.post(url, body, headers);
+      const json = res.getContentJson();
+      if (!json || !json["task_ids"] || json["task_ids"].length === 0) {
+        return null;
+      }
+      return json["task_ids"];
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return null;
+};
