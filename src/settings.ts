@@ -59,6 +59,10 @@ export const getSlackIconEmoji = (): string => {
   return getProperty("SLACK_ICON_EMOJI");
 };
 
+export const getChatworkAPIToken = (): string => {
+  return getProperty("CHATWORK_API_TOKEN");
+};
+
 export const getTimeInterval = (): number => {
   const result = Number(getProperty("TIME_INTERVAL"));
   if (Number.isNaN(result)) {
