@@ -336,7 +336,7 @@ export const postMessageInRoom = (
  */
 export const convertRoomlNameToId = (name: string, rooms: Room[]): string => {
   for (const room of rooms) {
-    if (room.name == name) {
+    if (room.name === name) {
       return String(room.room_id);
     }
   }
@@ -354,7 +354,9 @@ export const convertMemberNameToId = (
   members: Member[]
 ): string => {
   for (const member of members) {
-    if (member.name == name) {
+    if (member.name === name) {
+      return String(member.account_id);
+    } else if (member.chatwork_id === name) {
       return String(member.account_id);
     }
   }
