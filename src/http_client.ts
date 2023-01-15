@@ -37,7 +37,7 @@ export class HttpClient {
   }
 
   convertParamsToQueryString(params: any = null): string {
-    if (params === null) {
+    if (params === null || Object.keys(params).length === 0) {
       return "";
     }
     return Object.keys(params)

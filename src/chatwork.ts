@@ -167,6 +167,45 @@ export const getMessageInRoom = (
 };
 
 /**
+ * Get array of Task in a Room
+ * @param {number} roomId
+ * @return {Task|null}
+ */
+export const getTasksInRoom = (
+  roomId: number,
+  status: string | null = null
+): Task[] | null => {
+  const chatworkAPIToken = settings.getChatworkAPIToken();
+  if (!chatworkAPIToken) {
+    throw Error(`The value of chatworkAPIToken is null but it should not be.`);
+  }
+  const url = `https://api.chatwork.com/v2/rooms/${roomId}/tasks`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+    "x-chatworktoken": chatworkAPIToken,
+  };
+  const httpClient = new HttpClient();
+  const params: { status?: string } = {};
+  if (status !== null) {
+    params.status = status;
+  }
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      const res = httpClient.get(url, params, headers);
+      const json = res.getContentJson();
+      if (!json) {
+        return null;
+      }
+      return json;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return null;
+};
+
+/**
  * Get a Task in a Room
  * @param {number} roomId
  * @param {number} taskId
