@@ -72,7 +72,7 @@ export class HttpClient {
     return result;
   }
 
-  post(url: string, body: string, headers: any = {}): HTTPClientResponse {
+  post(url: string, body: any, headers: any = {}): HTTPClientResponse {
     const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
       method: "post",
       headers: headers,

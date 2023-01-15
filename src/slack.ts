@@ -137,8 +137,7 @@ export const sendMessageToSlack = (payload: any): string => {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Bearer ${slackBotUserOAuthToken}`,
     };
-    const body = payload;
-    const res = httpClient.post(url, body, headers);
+    const res = httpClient.post(url, payload, headers);
     const json = res.getContentJson();
     if (json["ok"]) {
       return json["ts"];
