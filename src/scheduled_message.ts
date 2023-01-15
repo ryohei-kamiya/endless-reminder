@@ -1,6 +1,7 @@
 import * as sheets from "./sheets";
 import * as calendar from "./calendar";
 import * as slack from "./slack";
+import * as chatwork from "./chatwork";
 import * as settings from "./settings";
 import * as utils from "./utils";
 import { TableData } from "./table_data";
@@ -96,6 +97,7 @@ export type ScheduledMessage = {
   disabled: boolean;
   repeatCount: number;
   sentMessageId: string | null;
+  taskIds: string[] | null;
 };
 
 /**
@@ -106,8 +108,7 @@ export type ScheduledMessage = {
 export const convertReceiverStringToArray = (sendToStr: string): string[] => {
   const sendTo = [];
   if (sendToStr) {
-    sendToStr = sendToStr.replace(/[, ]+/g, " ").trim();
-    const members = sendToStr.split(" ").map((member) => member.trim());
+    const members = sendToStr.split(",").map((member) => member.trim());
     for (const member of members) {
       sendTo.push(member);
     }
@@ -174,6 +175,7 @@ export const convertRecordToMessages = (
         disabled: record.disabled,
         repeatCount: 0,
         sentMessageId: null,
+        taskIds: null,
       });
     }
   }
@@ -205,6 +207,9 @@ export const getScheduledMessages = (
       if (record.id < 1) {
         continue;
       }
+      if (record.disabled) {
+        continue;
+      }
       if (argDate) {
         record.channel = slack.convertChannelNameToId(
           record.channel,
@@ -228,6 +233,79 @@ export const getScheduledMessages = (
         record.channel = slack.convertChannelNameToId(
           record.channel,
           slackChannels
+        );
+        const messages: ScheduledMessage[] = convertRecordToMessages(
+          record,
+          calendarIds
+        );
+        results = results.concat(messages);
+      }
+    }
+  } else if (settings.getActiveChatApp() == "chatwork") {
+    const rooms: chatwork.Room[] = chatwork.getRooms();
+    const me: chatwork.Me = chatwork.getMe();
+    for (let row = 1; row < tableData.getRows(); row++) {
+      const record = getScheduledMessageRecord(tableData, row);
+      if (!Number.isInteger(record.id)) {
+        continue;
+      }
+      if (record.id < 1) {
+        continue;
+      }
+      if (record.disabled) {
+        continue;
+      }
+      if (argDate) {
+        record.channel = chatwork.convertRoomNameToId(record.channel, rooms);
+        const members: chatwork.Member[] = chatwork.getMembersInRoom(
+          record.channel
+        );
+        record.notRenoticeTo = chatwork.getActualNotRenoticeTo(
+          record.notRenoticeTo,
+          members
+        );
+        record.notRenoticeTo = utils.mergeArrays(
+          record.notRenoticeTo,
+          [String(me.account_id)],
+          true
+        );
+        record.sendTo = chatwork.getActualSendTo(
+          record.sendTo,
+          record.notRenoticeTo,
+          members
+        );
+        const messages: ScheduledMessage[] = convertRecordToMessages(
+          record,
+          calendarIds,
+          (year: number): boolean => {
+            return argDate.getFullYear() === year;
+          },
+          (month: number): boolean => {
+            return argDate.getMonth() + 1 === month;
+          },
+          (date: number): boolean => {
+            return argDate.getDate() === date;
+          }
+        );
+        results = results.concat(messages);
+      } else {
+        record.channel = chatwork.convertRoomNameToId(record.channel, rooms);
+        const members: chatwork.Member[] = chatwork.getMembersInRoom(
+          record.channel
+        );
+        record.notRenoticeTo = chatwork.getActualNotRenoticeTo(
+          record.notRenoticeTo,
+          members
+        );
+        record.notRenoticeTo = utils.mergeArrays(
+          record.notRenoticeTo,
+          [String(me.account_id)],
+          true
+        );
+        record.sendTo = chatwork.getActualSendTo(
+          record.sendTo,
+          record.notRenoticeTo,
+          members
         );
         const messages: ScheduledMessage[] = convertRecordToMessages(
           record,
@@ -282,6 +360,7 @@ export const updateScheduledMessage = (
     disabled: message.disabled,
     repeatCount: message.repeatCount,
     sentMessageId: message.sentMessageId,
+    taskIds: message.taskIds,
   };
   const _mainSheet = sheets.mainSheet();
   if (!_mainSheet) {
@@ -318,6 +397,68 @@ export const updateScheduledMessage = (
         result.sendTo,
         result.notRenoticeTo,
         channelMemberIds
+      );
+      result.disabled = record.disabled;
+      break;
+    }
+  } else if (settings.getActiveChatApp() == "chatwork") {
+    for (let row = 1; row < tableData.getRows(); row++) {
+      const record = getScheduledMessageRecord(tableData, row);
+      if (!Number.isInteger(record.id)) {
+        continue;
+      }
+      if (record.id < 1) {
+        continue;
+      }
+      if (message.id !== record.id) {
+        continue;
+      }
+      const roomMembers = chatwork.getMembersInRoom(result.channel);
+      const roomTasks = chatwork.getTasksInRoom(result.channel, "open");
+      if (roomTasks && Array.isArray(roomTasks) && result.taskIds) {
+        result.taskIds = result.taskIds.filter((taskId) => {
+          for (const roomTask of roomTasks) {
+            if (String(roomTask.task_id) === taskId) {
+              return true;
+            }
+          }
+          return false;
+        });
+        result.sendTo = result.sendTo.filter((memberId) => {
+          for (const roomTask of roomTasks) {
+            if (String(roomTask.account.account_id) === memberId) {
+              return true;
+            }
+          }
+          return false;
+        });
+      } else {
+        result.taskIds = [];
+        result.sendTo = [];
+      }
+      result.message = record.message;
+      result.waitingMinutes = record.waitingMinutes;
+      result.notRenoticeTo = chatwork.getActualNotRenoticeTo(
+        result.notRenoticeTo,
+        roomMembers
+      );
+      result.sendTo = chatwork.getActualSendTo(
+        result.sendTo,
+        result.notRenoticeTo,
+        roomMembers
+      );
+      let sentMessage = null;
+      if (result.sentMessageId) {
+        sentMessage = chatwork.getMessageInRoom(
+          result.channel,
+          result.sentMessageId
+        );
+      }
+      result.renotice = chatwork.getActualMessage(
+        result.sendTo,
+        record.renotice,
+        roomMembers,
+        sentMessage
       );
       result.disabled = record.disabled;
       break;

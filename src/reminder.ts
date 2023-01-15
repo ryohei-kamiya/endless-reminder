@@ -1,5 +1,6 @@
 import * as calendar from "./calendar";
 import * as slack from "./slack";
+import * as chatwork from "./chatwork";
 import * as sm from "./scheduled_message";
 import * as triggerManager from "./trigger_manager";
 import * as settings from "./settings";
@@ -40,6 +41,27 @@ export const sendMessage = (message: sm.ScheduledMessage): string => {
       payload.text = slack.getActualMessage(message.sendTo, message.message);
     }
     return slack.postMessage(payload);
+  } else if (settings.getActiveChatApp() == "chatwork") {
+    if (message.sentMessageId) {
+      return chatwork.postMessageInRoom(message.channel, message.renotice);
+    } else {
+      const taskIds = chatwork.postTaskInRoom(
+        message.channel,
+        message.message,
+        message.sendTo,
+        message.datetime / 1000 + message.waitingMinutes * 60
+      );
+      if (taskIds && taskIds.length > 0) {
+        message.taskIds = taskIds.map((taskId) => String(taskId));
+        const task = chatwork.getTaskInRoom(
+          message.channel,
+          String(taskIds[0])
+        );
+        if (task) {
+          return task.message_id;
+        }
+      }
+    }
   }
   return "";
 };

@@ -1,6 +1,28 @@
 import * as settings from "./settings";
 import { HttpClient } from "./http_client";
 
+export type Me = {
+  account_id: number;
+  room_id: number;
+  name: string;
+  chatwork_id: string;
+  organization_id: number;
+  organization_name: string;
+  department: string;
+  title: string;
+  url: string;
+  introduction: string;
+  mail: string;
+  tel_organization: string;
+  tel_extension: string;
+  tel_mobile: string;
+  skype: string;
+  facebook: string;
+  twitter: string;
+  avatar_image_url: string;
+  login_mail: string;
+};
+
 export type Room = {
   room_id: number;
   name: string;
@@ -57,6 +79,37 @@ export type Task = {
   limit_time: number;
   status: string;
   limit_type: string;
+};
+
+/**
+ * Get Me
+ * @return {Me}
+ */
+export const getMe = (): Me => {
+  const chatworkAPIToken = settings.getChatworkAPIToken();
+  if (!chatworkAPIToken) {
+    throw Error(`The value of chatworkAPIToken is null but it should not be.`);
+  }
+  const url = `https://api.chatwork.com/v2/me`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+    "x-chatworktoken": chatworkAPIToken,
+  };
+  const httpClient = new HttpClient();
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      const res = httpClient.get(url, null, headers);
+      const json = res.getContentJson();
+      if (!json) {
+        throw Error(`HTTPResponse is invalid.`);
+      }
+      return json;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  throw Error(`Unknown error.`);
 };
 
 /**
@@ -268,7 +321,7 @@ export const postTaskInRoom = (
   const body = {
     body: text,
     to_ids: memberIds.join(","),
-    limit: limitUnixTimeSec,
+    limit: limitUnixTimeSec !== null ? limitUnixTimeSec.toFixed() : null,
     limit_type: limitType,
   };
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
@@ -297,7 +350,7 @@ export const postMessageInRoom = (
   roomId: string,
   text: string,
   self_unread = 0
-): string | null => {
+): string => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
   if (!chatworkAPIToken) {
     throw Error(`The value of chatworkAPIToken is null but it should not be.`);
@@ -309,23 +362,25 @@ export const postMessageInRoom = (
     "x-chatworktoken": chatworkAPIToken,
   };
   const httpClient = new HttpClient();
-  const body = {
+  const body: { body: string; self_unread?: number } = {
     body: text,
-    self_unread: self_unread,
   };
+  if (self_unread) {
+    body.self_unread = 1;
+  }
   for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
     try {
       const res = httpClient.post(url, body, headers);
       const json = res.getContentJson();
       if (!json || !json["message_id"]) {
-        return null;
+        throw Error(`HTTPResponse is invalid.`);
       }
       return json["message_id"];
     } catch (e) {
       console.log(e);
     }
   }
-  return null;
+  throw Error(`Message posting failed.`);
 };
 
 /**
@@ -334,7 +389,7 @@ export const postMessageInRoom = (
  * @param {Room[]} rooms
  * @return {string}
  */
-export const convertRoomlNameToId = (name: string, rooms: Room[]): string => {
+export const convertRoomNameToId = (name: string, rooms: Room[]): string => {
   for (const room of rooms) {
     if (room.name === name) {
       return String(room.room_id);
@@ -384,6 +439,69 @@ export const convertMemberIdToName = (
 };
 
 /**
+ * Get actual memberIds of notRenoticeTo
+ * @param {string[]} notRenoticeTo
+ * @param {Member[]} allMembers
+ * @return {string[]}
+ */
+export const getActualNotRenoticeTo = (
+  notRenoticeTo: string[],
+  allMembers: Member[]
+): string[] => {
+  let result: string[] = [];
+  if (
+    notRenoticeTo.some((memberId) => memberId == "all" || memberId == "toall")
+  ) {
+    result = allMembers.map((member) => String(member.account_id));
+  } else {
+    for (const memberName of notRenoticeTo) {
+      const memberId = convertMemberNameToId(memberName, allMembers);
+      if (
+        allMembers.map((member) => String(member.account_id)).includes(memberId)
+      ) {
+        result.push(memberId);
+      }
+    }
+  }
+  return result;
+};
+
+/**
+ * Get actual menberIds of sendTo
+ * @param {string[]} sendTo
+ * @param {string[]} notRenoticeTo
+ * @param {Member[]} allMembers
+ * @return {string[]}
+ */
+export const getActualSendTo = (
+  sendTo: string[],
+  notRenoticeTo: string[],
+  allMembers: Member[]
+): string[] => {
+  let result: string[] = [];
+  if (sendTo.some((memberId) => memberId == "all" || memberId == "toall")) {
+    const _sendTo = allMembers
+      .map((member) => String(member.account_id))
+      .filter((memberId) => !notRenoticeTo.includes(memberId));
+    result = _sendTo;
+  } else {
+    const _sendTo = [];
+    for (const memberName of sendTo) {
+      const memberId = convertMemberNameToId(memberName, allMembers);
+      if (
+        allMembers.map((member) => String(member.account_id)).includes(memberId)
+      ) {
+        if (!notRenoticeTo.includes(memberId)) {
+          _sendTo.push(memberId);
+        }
+      }
+    }
+    result = _sendTo;
+  }
+  return result;
+};
+
+/**
  * Get the actual message
  * @param {string[]} sendTo
  * @param {string} text
@@ -395,7 +513,7 @@ export const getActualMessage = (
   sendTo: string[],
   text: string,
   members: Member[],
-  quoteMessageText: string | null = null
+  quoteMessage: Message | null = null
 ): string => {
   let message = "";
   for (const to of sendTo) {
@@ -403,7 +521,7 @@ export const getActualMessage = (
       message = `${message} [toall]`;
     } else {
       const memberId = convertMemberNameToId(to, members);
-      const memberName = convertMemberNameToId(memberId, members);
+      const memberName = convertMemberIdToName(memberId, members);
       message = `${message} [To:${memberId}]${memberName}`;
     }
   }
@@ -412,8 +530,8 @@ export const getActualMessage = (
     message += "\n";
   }
   message += text;
-  if (quoteMessageText) {
-    message = quoteMessageText + "\n" + message;
+  if (quoteMessage) {
+    message = `[qt][qtmeta aid=${quoteMessage.account.account_id} time=${quoteMessage.send_time}]${quoteMessage.body}[/qt]\n ${message}`;
   }
   return message;
 };

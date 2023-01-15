@@ -130,15 +130,30 @@ export const convertTimeToString = (time: Date | string): string => {
  * @param {any[]} arr1
  * @param {any[]} arr2
  * @param {boolean} uniq
- * @returns
+ * @return {any[]}
  */
 export const mergeArrays = (
   arr1: any[],
   arr2: any[],
   uniq = false
 ): any[] => {
-  if (!uniq) {
-    return [...arr1, ...arr2];
+  if (!arr1 && !arr2) {
+    return [];
   }
-  return Array.from(new Set([...arr1, ...arr2]));
+  if (!uniq) {
+    if (!arr1) {
+      return arr2;
+    } else if (!arr2) {
+      return arr1;
+    } else {
+      return [...arr1, ...arr2];
+    }
+  }
+  if (!arr1) {
+    return Array.from(new Set(arr2));
+  } else if (!arr2) {
+    return Array.from(new Set(arr1));
+  } else {
+    return Array.from(new Set([...arr1, ...arr2]));
+  }
 };
