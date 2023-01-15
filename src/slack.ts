@@ -546,16 +546,104 @@ export const isBot = (memberId: string): boolean => {
 };
 
 /**
- * Get the actual message sending to Slack
+ * Get actual menberIds of notRenoticeTo
+ * @param {string[]} notRenoticeTo
+ * @param {string[]} allMemberIds
+ * @return {string[]}
+ */
+export const getActualNotRenoticeTo = (
+  notRenoticeTo: string[],
+  allMemberIds: string[]
+): string[] => {
+  let result: string[] = [];
+  if (
+    notRenoticeTo.some(
+      (memberId) => memberId == "channel" || memberId == "here"
+    )
+  ) {
+    result = allMemberIds;
+  } else {
+    const notFoundMemberIds: string[] = [];
+    for (const memberId of notRenoticeTo) {
+      if (allMemberIds.includes(memberId)) {
+        result.push(memberId);
+      } else {
+        notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+      }
+    }
+    if (notFoundMemberIds.length > 0) {
+      const userGroups = getUserGroups();
+      for (const memberId of getMemberIdsInUserGroups(
+        notFoundMemberIds,
+        userGroups
+      )) {
+        result.push(memberId);
+      }
+    }
+  }
+  return result;
+};
+
+/**
+ * Get actual menberIds of sendTo
  * @param {string[]} sendTo
+ * @param {string[]} notRenoticeTo
+ * @param {string[]} allMemberIds
+ * @return {string[]}
+ */
+export const getActualSendTo = (
+  sendTo: string[],
+  notRenoticeTo: string[],
+  allMemberIds: string[]
+): string[] => {
+  let result: string[] = [];
+  if (sendTo.some((memberId) => memberId == "channel" || memberId == "here")) {
+    const _sendTo = allMemberIds.filter(
+      (memberId) => !isBot(memberId) && !notRenoticeTo.includes(memberId)
+    );
+    result = _sendTo;
+  } else {
+    const _sendTo = [];
+    const notFoundMemberIds: string[] = [];
+    for (const memberId of sendTo) {
+      if (allMemberIds.includes(memberId)) {
+        if (!notRenoticeTo.includes(memberId)) {
+          _sendTo.push(memberId);
+        }
+      } else {
+        notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+      }
+    }
+    if (notFoundMemberIds.length > 0) {
+      const userGroups = getUserGroups();
+      for (const memberId of getMemberIdsInUserGroups(
+        notFoundMemberIds,
+        userGroups
+      )) {
+        if (!notRenoticeTo.includes(memberId)) {
+          _sendTo.push(memberId);
+        }
+      }
+    }
+    result = _sendTo;
+  }
+  return result;
+};
+
+/**
+ * Get the actual message
+ * @param {string[]|null} sendTo
  * @param {string} text
  * @returns
  */
-export const getActualMessageToSlack = (
-  sendTo: string[],
+export const getActualMessage = (
+  sendTo: string[] | null,
   text: string
 ): string => {
   let message = "";
+  if (!sendTo) {
+    return text;
+  }
   for (const member of sendTo) {
     if (member.toLowerCase() == "channel" || member.toLowerCase() == "here") {
       message = `${message} <!${member}>`;
@@ -590,6 +678,31 @@ export const isMemberInCompletionMessageSenders = (
     }
   }
   return false;
+};
+
+/**
+ * Get array of memberId who have completed the task
+ * @param {string} channel
+ * @param {string} messageId
+ * @param {string[]} completionKeywords
+ * @returns {string[]}
+ */
+export const getTaskCompletedMemberIds = (
+  channel: string,
+  messageId: string | null,
+  completionKeywords: string[]
+): string[] => {
+  const results: string[] = [];
+  if (!messageId) {
+    return results;
+  }
+  const replies = getRepliesFromSlackThread(channel, messageId);
+  for (const reply of replies) {
+    if (utils.hasSomeKeywordsInText(reply.text, completionKeywords)) {
+      results.push(reply.user);
+    }
+  }
+  return results;
 };
 
 /**

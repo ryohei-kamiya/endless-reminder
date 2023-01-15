@@ -124,3 +124,21 @@ export const convertTimeToString = (time: Date | string): string => {
   }
   return hms;
 };
+
+/**
+ * Merge arrays
+ * @param {any[]} arr1
+ * @param {any[]} arr2
+ * @param {boolean} uniq
+ * @returns
+ */
+export const mergeArrays = (
+  arr1: any[],
+  arr2: any[],
+  uniq = false
+): any[] => {
+  if (!uniq) {
+    return [...arr1, ...arr2];
+  }
+  return Array.from(new Set([...arr1, ...arr2]));
+};

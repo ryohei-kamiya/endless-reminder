@@ -35,15 +35,9 @@ export const sendMessage = (message: sm.ScheduledMessage): string => {
     };
     if (message.sentMessageId) {
       payload.thread_ts = message.sentMessageId;
-      payload.text = slack.getActualMessageToSlack(
-        message.sendTo,
-        message.renotice
-      );
+      payload.text = slack.getActualMessage(message.sendTo, message.renotice);
     } else {
-      payload.text = slack.getActualMessageToSlack(
-        message.sendTo,
-        message.message
-      );
+      payload.text = slack.getActualMessage(message.sendTo, message.message);
     }
     return slack.sendMessageToSlack(payload);
   }

@@ -296,7 +296,7 @@ export const postTaskInRoom = (
 export const postMessageInRoom = (
   roomId: string,
   text: string,
-  self_unread: number = 0
+  self_unread = 0
 ): string | null => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
   if (!chatworkAPIToken) {
