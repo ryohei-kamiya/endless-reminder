@@ -96,10 +96,10 @@ export const getRooms = (): Room[] => {
 
 /**
  * Get array of Member in a Room
- * @param {number} roomId
+ * @param {string} roomId
  * @return {Member[]}
  */
-export const getMembersInRoom = (roomId: number): Member[] => {
+export const getMembersInRoom = (roomId: string): Member[] => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
   if (!chatworkAPIToken) {
     throw Error(`The value of chatworkAPIToken is null but it should not be.`);
@@ -132,13 +132,13 @@ export const getMembersInRoom = (roomId: number): Member[] => {
 
 /**
  * Get a Message in a Room
- * @param {number} roomId
- * @param {number} messageId
+ * @param {string} roomId
+ * @param {string} messageId
  * @return {Message|null}
  */
 export const getMessageInRoom = (
-  roomId: number,
-  messageId: number
+  roomId: string,
+  messageId: string
 ): Message | null => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
   if (!chatworkAPIToken) {
@@ -168,11 +168,12 @@ export const getMessageInRoom = (
 
 /**
  * Get array of Task in a Room
- * @param {number} roomId
+ * @param {string} roomId
+ * @param {string|null} status
  * @return {Task|null}
  */
 export const getTasksInRoom = (
-  roomId: number,
+  roomId: string,
   status: string | null = null
 ): Task[] | null => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
@@ -207,11 +208,11 @@ export const getTasksInRoom = (
 
 /**
  * Get a Task in a Room
- * @param {number} roomId
- * @param {number} taskId
+ * @param {string} roomId
+ * @param {string} taskId
  * @return {Task|null}
  */
-export const getTaskInRoom = (roomId: number, taskId: number): Task | null => {
+export const getTaskInRoom = (roomId: string, taskId: string): Task | null => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
   if (!chatworkAPIToken) {
     throw Error(`The value of chatworkAPIToken is null but it should not be.`);
@@ -240,16 +241,16 @@ export const getTaskInRoom = (roomId: number, taskId: number): Task | null => {
 
 /**
  * Post a Task in a Room
- * @param {number} roomId - required
+ * @param {string} roomId - required
  * @param {string} text - required
- * @param {number[]} memberIds - required
+ * @param {string[]} memberIds - required
  * @param {number|null} limitUnixTimeSec - optional
  * @return {string[]|null}
  */
 export const postTaskInRoom = (
-  roomId: number,
+  roomId: string,
   text: string,
-  memberIds: number[],
+  memberIds: string[],
   limitUnixTimeSec: number | null = null
 ): number[] | null => {
   const chatworkAPIToken = settings.getChatworkAPIToken();
@@ -266,7 +267,7 @@ export const postTaskInRoom = (
   const httpClient = new HttpClient();
   const body = {
     body: text,
-    to_ids: memberIds.map((memberId) => String(memberId)).join(","),
+    to_ids: memberIds.join(","),
     limit: limitUnixTimeSec,
     limit_type: limitType,
   };
@@ -287,13 +288,13 @@ export const postTaskInRoom = (
 
 /**
  * Post a Message in a Room
- * @param {number} roomId - required
+ * @param {string} roomId - required
  * @param {string} text - required
  * @param {number} self_unread - optional
  * @return {string|null}
  */
 export const postMessageInRoom = (
-  roomId: number,
+  roomId: string,
   text: string,
   self_unread: number = 0
 ): string | null => {
