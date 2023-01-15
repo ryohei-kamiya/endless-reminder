@@ -284,3 +284,45 @@ export const postTaskInRoom = (
   }
   return null;
 };
+
+/**
+ * Post a Message in a Room
+ * @param {number} roomId - required
+ * @param {string} text - required
+ * @param {number} self_unread - optional
+ * @return {string|null}
+ */
+export const postMessageInRoom = (
+  roomId: number,
+  text: string,
+  self_unread: number = 0
+): string | null => {
+  const chatworkAPIToken = settings.getChatworkAPIToken();
+  if (!chatworkAPIToken) {
+    throw Error(`The value of chatworkAPIToken is null but it should not be.`);
+  }
+  const url = `https://api.chatwork.com/v2/rooms/${roomId}/messages`;
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Accept: "application/json",
+    "x-chatworktoken": chatworkAPIToken,
+  };
+  const httpClient = new HttpClient();
+  const body = {
+    body: text,
+    self_unread: self_unread,
+  };
+  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+    try {
+      const res = httpClient.post(url, body, headers);
+      const json = res.getContentJson();
+      if (!json || !json["message_id"]) {
+        return null;
+      }
+      return json["message_id"];
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  return null;
+};
