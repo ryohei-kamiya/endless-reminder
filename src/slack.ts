@@ -565,10 +565,12 @@ export const getActualNotRenoticeTo = (
   } else {
     const notFoundMemberIds: string[] = [];
     for (const memberId of notRenoticeTo) {
-      if (allMemberIds.includes(memberId)) {
-        result.push(memberId);
-      } else {
-        notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+      if (memberId) {
+        if (allMemberIds.includes(memberId)) {
+          result.push(memberId);
+        } else {
+          notFoundMemberIds.push(memberId.replace(/^subteam\^/, ""));
+        }
       }
     }
     if (notFoundMemberIds.length > 0) {
