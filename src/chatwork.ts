@@ -334,13 +334,7 @@ export const postMessageInRoom = (
  * @param {Room[]} rooms
  * @return {string}
  */
-export const convertRoomlNameToId = (
-  name: string,
-  rooms: Room[] | undefined
-): string => {
-  if (rooms === undefined) {
-    rooms = getRooms();
-  }
+export const convertRoomlNameToId = (name: string, rooms: Room[]): string => {
   for (const room of rooms) {
     if (room.name == name) {
       return String(room.room_id);
