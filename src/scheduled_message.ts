@@ -215,6 +215,13 @@ export const getScheduledMessages = (
           record.channel,
           slackChannels
         );
+        const members = slack.getAllMembers();
+        record.sendTo = record.sendTo.map((memberName) =>
+          slack.convertMemberNameToId(memberName, members)
+        );
+        record.notRenoticeTo = record.notRenoticeTo.map((memberName) =>
+          slack.convertMemberNameToId(memberName, members)
+        );
         const messages: ScheduledMessage[] = convertRecordToMessages(
           record,
           calendarIds,
@@ -233,6 +240,13 @@ export const getScheduledMessages = (
         record.channel = slack.convertChannelNameToId(
           record.channel,
           slackChannels
+        );
+        const members = slack.getAllMembers();
+        record.sendTo = record.sendTo.map((memberName) =>
+          slack.convertMemberNameToId(memberName, members)
+        );
+        record.notRenoticeTo = record.notRenoticeTo.map((memberName) =>
+          slack.convertMemberNameToId(memberName, members)
         );
         const messages: ScheduledMessage[] = convertRecordToMessages(
           record,
@@ -380,6 +394,10 @@ export const updateScheduledMessage = (
       if (message.id !== record.id) {
         continue;
       }
+      const members = slack.getAllMembers();
+      record.notRenoticeTo = record.notRenoticeTo.map((memberName) =>
+        slack.convertMemberNameToId(memberName, members)
+      );
       const channelMemberIds = slack.getMemberIdsOnSlackChannel(result.channel);
       const taskCompletedMemberIds = slack.getTaskCompletedMemberIds(
         result.channel,
@@ -390,7 +408,7 @@ export const updateScheduledMessage = (
       result.waitingMinutes = record.waitingMinutes;
       result.renotice = record.renotice;
       result.notRenoticeTo = slack.getActualNotRenoticeTo(
-        utils.mergeArrays(result.notRenoticeTo, taskCompletedMemberIds),
+        utils.mergeArrays(record.notRenoticeTo, taskCompletedMemberIds),
         channelMemberIds
       );
       result.sendTo = slack.getActualSendTo(
@@ -439,7 +457,7 @@ export const updateScheduledMessage = (
       result.message = record.message;
       result.waitingMinutes = record.waitingMinutes;
       result.notRenoticeTo = chatwork.getActualNotRenoticeTo(
-        result.notRenoticeTo,
+        record.notRenoticeTo,
         roomMembers
       );
       result.sendTo = chatwork.getActualSendTo(

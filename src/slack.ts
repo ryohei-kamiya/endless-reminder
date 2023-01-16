@@ -443,6 +443,34 @@ export const convertChannelNameToId = (
 };
 
 /**
+ * Convert the member name to id.
+ * @param {string} name
+ * @param {Member[]} members
+ * @return {string}
+ */
+export const convertMemberNameToId = (
+  name: string,
+  members: Member[]
+): string => {
+  for (const member of members) {
+    if (member.name === name) {
+      return String(member.id);
+    } else if (member.real_name === name) {
+      return String(member.id);
+    } else if (member.profile?.real_name === name) {
+      return String(member.id);
+    } else if (member.profile?.display_name === name) {
+      return String(member.id);
+    } else if (member.profile?.real_name_normalized === name) {
+      return String(member.id);
+    } else if (member.profile?.display_name_normalized === name) {
+      return String(member.id);
+    }
+  }
+  return name;
+};
+
+/**
  * Get all members in this Slack team
  * @return {Member[]}
  */
