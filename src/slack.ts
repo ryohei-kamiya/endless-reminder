@@ -370,45 +370,52 @@ export const getChannels = (): Channel[] => {
     Authorization: `Bearer ${slackBotUserOAuthToken}`,
   };
   let nextCursor = "";
-  for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
-    try {
-      const params: {
-        exclude_archived: boolean;
-        types: string;
-        limit: number;
-        cursor?: string;
-      } = {
-        exclude_archived: true,
-        types: "public_channel%2Cprivate_channel%2Cmpim%2Cim",
-        limit: 100,
-      };
-      if (nextCursor) {
-        params.cursor = nextCursor;
-      }
-      const res = httpClient.get(url, params, headers);
-      const json = res.getContentJson();
-      if (!json || !json["ok"]) {
-        return results;
-      }
-      let existsNewChannel = false;
-      for (const channel of json["channels"]) {
-        if (results.some((result) => result.id == channel.id)) {
-          continue;
+  for (const channelType of [
+    "public_channel",
+    "private_channel",
+    "mpim",
+    "im",
+  ]) {
+    for (let retryCnt = 0; retryCnt < 10; retryCnt++) {
+      try {
+        const params: {
+          exclude_archived: boolean;
+          types: string;
+          limit: number;
+          cursor?: string;
+        } = {
+          exclude_archived: true,
+          types: channelType,
+          limit: 100,
+        };
+        if (nextCursor) {
+          params.cursor = nextCursor;
         }
-        results.push(channel);
-        existsNewChannel = true;
+        const res = httpClient.get(url, params, headers);
+        const json = res.getContentJson();
+        if (!json || !json["ok"]) {
+          return results;
+        }
+        let existsNewChannel = false;
+        for (const channel of json["channels"]) {
+          if (results.some((result) => result.id == channel.id)) {
+            continue;
+          }
+          results.push(channel);
+          existsNewChannel = true;
+        }
+        if (
+          existsNewChannel &&
+          json["response_metadata"] &&
+          json["response_metadata"]["next_cursor"]
+        ) {
+          nextCursor = json["response_metadata"]["next_cursor"];
+        } else {
+          break;
+        }
+      } catch (e) {
+        console.log(e);
       }
-      if (
-        existsNewChannel &&
-        json["response_metadata"] &&
-        json["response_metadata"]["next_cursor"]
-      ) {
-        nextCursor = json["response_metadata"]["next_cursor"];
-      } else {
-        break;
-      }
-    } catch (e) {
-      console.log(e);
     }
   }
   return results;
