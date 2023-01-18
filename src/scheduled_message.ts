@@ -36,9 +36,13 @@ export const getScheduledMessageRecord = (
   // get a scheduled message id from mainSheet
   const scheduledMessageId = Number(tableData.getValue(row, col++));
   // get years from mainSheet
-  const years = calendar.parseYearsString(tableData.getValue(row, col++));
+  const years = calendar.parseYearsString(
+    String(tableData.getValue(row, col++))
+  );
   // get months from mainSheet
-  const months = calendar.parseMonthsString(tableData.getValue(row, col++));
+  const months = calendar.parseMonthsString(
+    String(tableData.getValue(row, col++))
+  );
   // get days from mainSheet
   const days = utils.getSafeNumber(tableData.getValue(row, col++), 1, 31, 1);
   // get exceptHolidays from mainSheet(days are interpreted as number of business days from the beginning of the month if exceptHolidays is true)
