@@ -1,6 +1,6 @@
 # PushyReminder
 
-This is a Google Apps Script that will permanently keep reminding persons on chat apps who haven't completed the task until the task is complete.
+This is a Google Apps Script that will permanently keep reminding persons on chat apps (Slack and Chatwork) who haven't completed the task until the task is complete.
 It frees humanity from unproductive tasks that repeatedly remind unresponsive persons.
 
 <img width="491" alt="pushy-reminder-example" src="https://user-images.githubusercontent.com/2719533/211297547-12ef1e0e-5b2b-40f3-9c87-ea0eac5780d0.png">
@@ -8,8 +8,9 @@ It frees humanity from unproductive tasks that repeatedly remind unresponsive pe
 ## Requirements
 
 - Install [clasp](https://github.com/google/clasp#install) and settings it.
+- Run `clasp login`
 
-## Setup
+## Setup (with Slack)
 
 1. Build and deploy the GAS.
 
@@ -88,9 +89,10 @@ _Table5: Configuration parameters on settings sheet_
 Name | Possible values | Description
 -- | -- | --
 BOT_NAME | Any string can be set. | The name of the Slack app that posts messages to Slack. The initial value is "PushyReminder".
-ACTIVE_CHAT_APP | Currently, only "slack" can be set. | The name of the chat app to post the message to.
-SLACK_BOT_USER_OAUTH_TOKEN | Set the string of "Bot User OAuth Token" generated when installing the Slack app in Slack's Workspace. | Authentication token for the Slack app that posts the message. **It is required.**
+ACTIVE_CHAT_APP | "slack" or "chatwork" can be set. | The name of the chat app to post the message to.
+SLACK_BOT_USER_OAUTH_TOKEN | Set the string of "Bot User OAuth Token" generated when installing the Slack app in Slack's Workspace. | Authentication token for the Slack app that posts the message. **It is required if ACTIVE_CHAT_APP == "slack".**
 SLACK_ICON_EMOJI | Slack's emoji code can be set. | This is the icon (emoji) of the Slack app to post messages. ":spiral_calendar_pad:" is the default value.
+CHATWORK_API_TOKEN | Set the string of "API Token" available from [this site](https://developer.chatwork.com/docs). | Authentication token for the Chatwork API that posts the message. **It is required if ACTIVE_CHAT_APP == "chatwork".**
 TIME_INTERVAL | An integer greater than or equal to 1 can be set. | Time interval for sending reminder messages to persons who have not responded to the task. The value unit is "minutes". The initial value is "1440 (= 24 hours)".
 TIME_INTERVAL_DECAY | A value greater than 1 can be set. | This is a parameter for gradually shortening the interval between sending reminder messages. For example, a setting of 2 will reduce the send time interval by a factor of two each time a reminder message is sent. A setting of "3" reduces it by a factor of three. 1 means "no change". The initial value is "1".
 TIME_INTERVAL_MIN | An integer greater than or equal to 1 and less than or equal to TIME_INTERVAL can be set. | The minimum time interval for sending reminder messages. If you set a value that exceeds TIME_INTERVAL, it will be interpreted as the same value as TIME_INTERVAL.
@@ -99,4 +101,6 @@ OPENING_TIME | You can set the time from 00:00:00 to 23:59:59. | This is the sta
 CLOSING_TIME | You can set the time from OPENING_TIME to 23:59:59. | This is the end time of the period during which reminder messages can be sent. Send times after CLOSING_TIME will be replaced with OPENING_TIME on the next day (or next business day). The initial value is "23:59:59".
 DEBUG | Can be set to TRUE or FALSE. | Parameter to set ON/OFF of debug mode for developers. If FALSE, debug mode is OFF. If TRUE, debug mode will be ON. If the debug mode is OFF, set a trigger for sending on GAS for messages scheduled to be sent the next day. If the debug mode is ON, set the trigger for sending on GAS for the message scheduled to be sent on the day. The initial value is FALSE(OFF).
 
-**SLACK_BOT_USER_OAUTH_TOKEN is required.** Other parameters are optional.
+**SLACK_BOT_USER_OAUTH_TOKEN is required if ACTIVE_CHAT_APP == "slack".**
+**CHATWORK_API_TOKEN is required if ACTIVE_CHAT_APP == "chatwork".**
+Other parameters are optional.
