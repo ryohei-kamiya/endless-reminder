@@ -1,0 +1,5 @@
+{
+  "scriptId": "${SCRIPT_ID}",
+  "rootDir": "./dist",
+  "parentId": ["${GOOGLE_SPREAD_SHEET_FILE_ID}"]
+}
