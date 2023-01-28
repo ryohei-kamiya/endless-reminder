@@ -1,9 +1,9 @@
-# PushyReminder
+# EndlessReminder
 
 This is a Google Apps Script that will permanently keep reminding persons on chat apps (Slack and Chatwork) who haven't completed the task until the task is complete.
 It frees humanity from unproductive tasks that repeatedly remind unresponsive persons.
 
-<img width="491" alt="pushy-reminder-example" src="https://user-images.githubusercontent.com/2719533/211297547-12ef1e0e-5b2b-40f3-9c87-ea0eac5780d0.png">
+<img width="491" alt="endless-reminder-example" src="https://user-images.githubusercontent.com/2719533/211297547-12ef1e0e-5b2b-40f3-9c87-ea0eac5780d0.png">
 
 ## Requirements
 
@@ -18,7 +18,7 @@ It frees humanity from unproductive tasks that repeatedly remind unresponsive pe
 $ ./setup.sh
 ```
 
-2. Open the newly created spreadsheet "PushyReminder" in Google Sheets.
+2. Open the newly created spreadsheet "EndlessReminder" in Google Sheets.
 3. Click `File > Import`, then replace spreadsheet by `post-management-sheets-template.xlsx`.
 4. Create a Slack app on [slack api > Your Apps](https://api.slack.com/apps)
 5. Add the following 12 scopes to the Slack app's "Bot Token Scopes".
@@ -54,11 +54,11 @@ _Table1: main sheet_
 Column | Parameter | Description
 -- | -- | --
 A | No. | This is an administrative number. Enter an integer greater than or equal to 1. Duplication is not allowed.
-B | Years | A list of "years" PushyReminder posts messages to. Enter the year numbers separated by commas. If "_" is included in the list, it will be posted repeatedly every year.
-C | Months | A list of "months" PushyReminder posts messages to. Enter numbers from 1 to 12 separated by commas. If "_" is included in the list, it will be posted repeatedly every month.
+B | Years | A list of "years" EndlessReminder posts messages to. Enter the year numbers separated by commas. If "_" is included in the list, it will be posted repeatedly every year.
+C | Months | A list of "months" EndlessReminder posts messages to. Enter numbers from 1 to 12 separated by commas. If "_" is included in the list, it will be posted repeatedly every month.
 D | Days | Posting date of the message. Enter an integer between 1 and 31.
 E | Except holidays | A flag that determines whether to post on holidays. Enter TRUE or FALSE. If FALSE, post even on holidays. If TRUE, do not post on holidays. Also, if TRUE, interpret the values in column D as "business days" excluding holidays. For example, entering "1" in column D and "TRUE" in column E will post on the first business day of the specified month.
-F | Sending time | The "time" to post the message. Enter the hour (hh), minute (mm), and second (ss) separated by ":" (enter in the format hh:mm:ss). Minutes (mm) and seconds (ss) can be omitted. For example, if you enter "12:00" in column E, PushyReminder will post at 12:00 PM.
+F | Sending time | The "time" to post the message. Enter the hour (hh), minute (mm), and second (ss) separated by ":" (enter in the format hh:mm:ss). Minutes (mm) and seconds (ss) can be omitted. For example, if you enter "12:00" in column E, EndlessReminder will post at 12:00 PM.
 G | Channel | Enter the name of the channel to post the message to.
 H | Send to | Enter the message destinations ("member ID", "channel", "here", etc.) separated by commas. Here, "member ID" is an ID that can be obtained from "Copy member ID" in the user's profile field in Slack.
 I | Message | The content of the message to send. Please enter the details of the task you want to request.
@@ -75,20 +75,20 @@ A | Calendar ID | Calendar ID of Google Calendar. If the calendar contains event
 _Table3: completion_keywords sheet_
 Column | Possible values | Description
 -- | -- | --
-A | Completion keyword | People can tell PushyReminder of task completions by posting comments containing the words defined here in the thread of the post in Slack.
+A | Completion keyword | People can tell EndlessReminder of task completions by posting comments containing the words defined here in the thread of the post in Slack.
 
 _Table4: settings sheet_
 Column | Possible values | Description
 -- | -- | --
-A | Configuration parameter's name | Enter the name of the configuration parameter that controls the behavior of PushyReminder.
-B | Configuration parameter's value | Enter the value of the configuration parameter that controls the behavior of PushyReminder.
+A | Configuration parameter's name | Enter the name of the configuration parameter that controls the behavior of EndlessReminder.
+B | Configuration parameter's value | Enter the value of the configuration parameter that controls the behavior of EndlessReminder.
 
 The list of configuration parameters that can be set in the settings sheet is as shown in the table below.
 
 _Table5: Configuration parameters on settings sheet_
 Name | Possible values | Description
 -- | -- | --
-BOT_NAME | Any string can be set. | The name of the Slack app that posts messages to Slack. The initial value is "PushyReminder".
+BOT_NAME | Any string can be set. | The name of the Slack app that posts messages to Slack. The initial value is "EndlessReminder".
 ACTIVE_CHAT_APP | "slack" or "chatwork" can be set. | The name of the chat app to post the message to.
 SLACK_BOT_USER_OAUTH_TOKEN | Set the string of "Bot User OAuth Token" generated when installing the Slack app in Slack's Workspace. | Authentication token for the Slack app that posts the message. **It is required if ACTIVE_CHAT_APP == "slack".**
 SLACK_ICON_EMOJI | Slack's emoji code can be set. | This is the icon (emoji) of the Slack app to post messages. ":spiral_calendar_pad:" is the default value.
