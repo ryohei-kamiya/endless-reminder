@@ -26,11 +26,13 @@ export type ScheduledMessageRecord = {
  * Get scheduled message record from tableData
  * @param {TableData} tableData
  * @param {number} row
+ * @param {string[]|undefined} calendarIds
  * @return {ScheduledMessageRecord}
  */
 export const getScheduledMessageRecord = (
   tableData: TableData,
-  row: number
+  row: number,
+  calendarIds: string[] | undefined = undefined
 ): ScheduledMessageRecord => {
   let col = 0;
   // get a scheduled message id from mainSheet
@@ -43,10 +45,17 @@ export const getScheduledMessageRecord = (
   const months = calendar.parseMonthsString(
     String(tableData.getValue(row, col++))
   );
-  // get days from mainSheet
-  const days = utils.getSafeNumber(tableData.getValue(row, col++), 1, 31, 1);
   // get exceptHolidays from mainSheet(days are interpreted as number of business days from the beginning of the month if exceptHolidays is true)
-  const exceptHolidays = Boolean(tableData.getValue(row, col++));
+  const exceptHolidays = Boolean(tableData.getValue(row, col + 1));
+  // get days from mainSheet
+  const tomorrow = calendar.getTomorrow(new Date());
+  const days = calendar.parseDaysString(
+    String(tableData.getValue(row, col)),
+    tomorrow,
+    exceptHolidays,
+    calendarIds
+  );
+  col += 2;
   // get the scheduled message sending time from mainSheet
   const hms = utils.convertTimeToString(tableData.getValue(row, col++));
   // get the channel(id or name) to send message from mainSheet
@@ -146,6 +155,9 @@ export const convertRecordToMessages = (
           continue;
         }
       }
+      if (record.days === 0) {
+        continue;
+      }
       let date: Date = new Date(
         record.years[j],
         record.months[k] - 1,
@@ -204,7 +216,7 @@ export const getScheduledMessages = (
   if (settings.getActiveChatApp() == "slack") {
     const slackChannels: slack.Channel[] = slack.getChannels();
     for (let row = 1; row < tableData.getRows(); row++) {
-      const record = getScheduledMessageRecord(tableData, row);
+      const record = getScheduledMessageRecord(tableData, row, calendarIds);
       if (!Number.isInteger(record.id)) {
         continue;
       }
@@ -263,7 +275,7 @@ export const getScheduledMessages = (
     const rooms: chatwork.Room[] = chatwork.getRooms();
     const me: chatwork.Me = chatwork.getMe();
     for (let row = 1; row < tableData.getRows(); row++) {
-      const record = getScheduledMessageRecord(tableData, row);
+      const record = getScheduledMessageRecord(tableData, row, calendarIds);
       if (!Number.isInteger(record.id)) {
         continue;
       }
@@ -385,10 +397,11 @@ export const updateScheduledMessage = (
     throw Error(`The value of mainSheet is null but it should not be.`);
   }
   const tableData = sheets.getTableData(_mainSheet);
+  const calendarIds = calendar.getCalendarIds();
   const completionKeywords = getCompletionKeywords();
   if (settings.getActiveChatApp() == "slack") {
     for (let row = 1; row < tableData.getRows(); row++) {
-      const record = getScheduledMessageRecord(tableData, row);
+      const record = getScheduledMessageRecord(tableData, row, calendarIds);
       if (!Number.isInteger(record.id)) {
         continue;
       }
@@ -425,7 +438,7 @@ export const updateScheduledMessage = (
     }
   } else if (settings.getActiveChatApp() == "chatwork") {
     for (let row = 1; row < tableData.getRows(); row++) {
-      const record = getScheduledMessageRecord(tableData, row);
+      const record = getScheduledMessageRecord(tableData, row, calendarIds);
       if (!Number.isInteger(record.id)) {
         continue;
       }

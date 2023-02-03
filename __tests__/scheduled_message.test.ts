@@ -1,7 +1,8 @@
 import * as sm from "../src/scheduled_message";
+import * as calendar from "../src/calendar";
 import { TableData } from "../src/table_data";
 
-const mockDate = new Date(2022, 0, 1, 0, 0, 0, 0);
+const mockDate = new Date(2022, 0, 4, 0, 0, 0, 0);
 const testTableData: TableData = new TableData([
   [
     1,
@@ -89,6 +90,141 @@ const testTableData: TableData = new TableData([
     "channel",
     "Hello world!",
     30,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    7,
+    "*",
+    "*",
+    "sun",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    8,
+    "*",
+    "*",
+    "mon",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    9,
+    "*",
+    "*",
+    "tue",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    10,
+    "*",
+    "*",
+    "wed",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    11,
+    "*",
+    "*",
+    "thu",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    12,
+    "*",
+    "*",
+    "fri",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    13,
+    "*",
+    "*",
+    "sat",
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    14,
+    "*",
+    "*",
+    "wed",
+    true,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
+    "Hello world again!",
+    "dummy_user_id1",
+    false,
+  ],
+  [
+    15,
+    "*",
+    "*",
+    32,
+    false,
+    mockDate,
+    "random",
+    "channel",
+    "Hello world!",
+    5,
     "Hello world again!",
     "dummy_user_id1",
     false,
@@ -191,9 +327,156 @@ const trueRecord6: sm.ScheduledMessageRecord = {
   disabled: false,
 };
 
+const trueRecord7: sm.ScheduledMessageRecord = {
+  id: 7,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 9,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord8: sm.ScheduledMessageRecord = {
+  id: 8,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 10,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord9: sm.ScheduledMessageRecord = {
+  id: 9,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 11,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord10: sm.ScheduledMessageRecord = {
+  id: 10,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 5,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord11: sm.ScheduledMessageRecord = {
+  id: 11,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 6,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord12: sm.ScheduledMessageRecord = {
+  id: 12,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 7,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord13: sm.ScheduledMessageRecord = {
+  id: 13,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 8,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord14: sm.ScheduledMessageRecord = {
+  id: 14,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 5,
+  exceptHolidays: true,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
+const trueRecord15: sm.ScheduledMessageRecord = {
+  id: 15,
+  years: [2022, 2023],
+  months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  days: 31,
+  exceptHolidays: false,
+  hms: "00:00:00",
+  channel: "random",
+  sendTo: ["channel"],
+  message: "Hello world!",
+  waitingMinutes: 5,
+  renotice: "Hello world again!",
+  notRenoticeTo: ["dummy_user_id1"],
+  disabled: false,
+};
+
 beforeAll(() => {
   jest.useFakeTimers();
   jest.setSystemTime(mockDate);
+  const tomorrow = new Date(mockDate.getTime());
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  jest.spyOn(calendar, "getTomorrow").mockReset().mockReturnValue(tomorrow);
 });
 
 describe("unit tests for convertReceiverStringToArray()", () => {
@@ -223,5 +506,56 @@ describe("unit tests for getScheduledMessageRecord()", () => {
   });
   it("if tableData is testTableData and row == 5 then return trueRecord6", () => {
     expect(sm.getScheduledMessageRecord(testTableData, 5)).toEqual(trueRecord6);
+  });
+  it("if tableData is testTableData and row == 6 then return trueRecord7", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(true);
+    expect(sm.getScheduledMessageRecord(testTableData, 6)).toEqual(trueRecord7);
+  });
+  it("if tableData is testTableData and row == 7 then return trueRecord8", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(false);
+    expect(sm.getScheduledMessageRecord(testTableData, 7)).toEqual(trueRecord8);
+  });
+  it("if tableData is testTableData and row == 8 then return trueRecord9", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(false);
+    expect(sm.getScheduledMessageRecord(testTableData, 8)).toEqual(trueRecord9);
+  });
+  it("if tableData is testTableData and row == 9 then return trueRecord10", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(false);
+    expect(sm.getScheduledMessageRecord(testTableData, 9)).toEqual(
+      trueRecord10
+    );
+  });
+  it("if tableData is testTableData and row == 10 then return trueRecord11", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(false);
+    expect(sm.getScheduledMessageRecord(testTableData, 10)).toEqual(
+      trueRecord11
+    );
+  });
+  it("if tableData is testTableData and row == 11 then return trueRecord12", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(false);
+    expect(sm.getScheduledMessageRecord(testTableData, 11)).toEqual(
+      trueRecord12
+    );
+  });
+  it("if tableData is testTableData and row == 12 then return trueRecord13", () => {
+    jest.spyOn(calendar, "isHoliday").mockReset().mockReturnValueOnce(true);
+    expect(sm.getScheduledMessageRecord(testTableData, 12)).toEqual(
+      trueRecord13
+    );
+  });
+  it("if tableData is testTableData and row == 13 and tomorrow is holiday and today is not holiday then return trueRecord14", () => {
+    jest
+      .spyOn(calendar, "isHoliday")
+      .mockReset()
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(false);
+    expect(sm.getScheduledMessageRecord(testTableData, 13, ["dummy"])).toEqual(
+      trueRecord14
+    );
+  });
+  it("if tableData is testTableData and row == 14 then return trueRecord15", () => {
+    expect(sm.getScheduledMessageRecord(testTableData, 14)).toEqual(
+      trueRecord15
+    );
   });
 });

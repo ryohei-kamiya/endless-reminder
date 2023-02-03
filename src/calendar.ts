@@ -1,5 +1,6 @@
 import * as sheets from "./sheets";
 import * as settings from "./settings";
+import * as utils from "./utils";
 
 /**
  * Parse years from string to number array
@@ -38,6 +39,177 @@ export const parseMonthsString = (monthsStr: string): number[] => {
       .map((nStr) => Number(nStr))
       .filter(Boolean);
   }
+};
+
+/**
+ * Parse days from string to Date array
+ * @param {string} daysStr - number from 1 to 31, or any one of ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
+ * @param {Date} today
+ * @param {boolean} exceptHolidays
+ * @param {string} calendarIds
+ * @param {boolean} backward - shift days to backward if backward === true, exceptHolidays === true, and today is holiday
+ * @return {Date[]}
+ */
+export const parseDaysStringToDates = (
+  daysStr: string,
+  today: Date | undefined = undefined,
+  exceptHolidays = false,
+  calendarIds: string[] | undefined = undefined,
+  backward = false
+): Date[] => {
+  const results: Date[] = [];
+  if (!daysStr) {
+    return results;
+  }
+  if (!today) {
+    today = new Date();
+  }
+  const strDays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  const numDay = strDays.indexOf(daysStr.toLowerCase());
+  if (0 <= numDay && numDay < 7) {
+    const thisMonthFirstDate = new Date(today.getTime());
+    thisMonthFirstDate.setDate(1);
+
+    const lastMonthLastDate = new Date(thisMonthFirstDate);
+    lastMonthLastDate.setDate(lastMonthLastDate.getDate() - 1);
+
+    const nextMonthFirstDate = new Date(thisMonthFirstDate.getTime());
+    nextMonthFirstDate.setMonth(nextMonthFirstDate.getMonth() + 1);
+
+    const thisMonthLastDate = new Date(nextMonthFirstDate);
+    thisMonthLastDate.setDate(thisMonthLastDate.getDate() - 1);
+
+    if (backward) {
+      const thisMonthDate = new Date(thisMonthLastDate);
+      while (thisMonthDate >= lastMonthLastDate) {
+        if (thisMonthDate.getDay() === numDay) {
+          if (exceptHolidays) {
+            if (isHoliday(thisMonthDate, calendarIds)) {
+              while (isHoliday(thisMonthDate, calendarIds)) {
+                thisMonthDate.setDate(thisMonthDate.getDate() - 1);
+              }
+              results.push(new Date(thisMonthDate));
+              thisMonthDate.setDate(thisMonthDate.getDate() - 1);
+            } else {
+              results.push(new Date(thisMonthDate));
+              thisMonthDate.setDate(thisMonthDate.getDate() - 7);
+            }
+          } else {
+            results.push(new Date(thisMonthDate));
+            thisMonthDate.setDate(thisMonthDate.getDate() - 7);
+          }
+        } else {
+          thisMonthDate.setDate(thisMonthDate.getDate() - 1);
+        }
+      }
+    } else {
+      const thisMonthDate = new Date(thisMonthFirstDate);
+      while (thisMonthDate <= thisMonthLastDate) {
+        if (thisMonthDate.getDay() === numDay) {
+          if (exceptHolidays) {
+            if (isHoliday(thisMonthDate, calendarIds)) {
+              while (isHoliday(thisMonthDate, calendarIds)) {
+                thisMonthDate.setDate(thisMonthDate.getDate() + 1);
+              }
+              results.push(new Date(thisMonthDate));
+              thisMonthDate.setDate(thisMonthDate.getDate() + 1);
+            } else {
+              results.push(new Date(thisMonthDate));
+              thisMonthDate.setDate(thisMonthDate.getDate() + 7);
+            }
+          } else {
+            results.push(new Date(thisMonthDate));
+            thisMonthDate.setDate(thisMonthDate.getDate() + 7);
+          }
+        } else {
+          thisMonthDate.setDate(thisMonthDate.getDate() + 1);
+        }
+      }
+    }
+  } else {
+    const thisMonthDate = new Date();
+    const thisMonthLastDate = new Date(thisMonthDate);
+    thisMonthLastDate.setMonth(thisMonthLastDate.getMonth() + 1);
+    thisMonthLastDate.setDate(0);
+    const daysNum = utils.getSafeNumber(
+      daysStr,
+      1,
+      thisMonthLastDate.getDate(),
+      0
+    );
+    if (daysNum > 0) {
+      thisMonthDate.setDate(daysNum);
+      results.push(thisMonthDate);
+    }
+  }
+  return results;
+};
+
+/**
+ * Parse days from string to number
+ * @param {string} daysStr - number from 1 to 31, or any one of ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
+ * @param {Date} today
+ * @param {boolean} exceptHolidays
+ * @param {string} calendarIds
+ * @param {boolean} backward - shift days to backward if backward === true, exceptHolidays === true, and today is holiday
+ * @return {number}
+ */
+export const parseDaysString = (
+  daysStr: string,
+  today: Date | undefined = undefined,
+  exceptHolidays = false,
+  calendarIds: string[] | undefined = undefined,
+  backward = false
+): number => {
+  if (!daysStr) {
+    return 0;
+  }
+  if (!today) {
+    today = new Date();
+  }
+  const nextMonthFirstDate = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    1
+  );
+  const thisMonthDates = parseDaysStringToDates(
+    daysStr,
+    today,
+    exceptHolidays,
+    calendarIds,
+    backward
+  );
+  const nextMonthDates = parseDaysStringToDates(
+    daysStr,
+    nextMonthFirstDate,
+    exceptHolidays,
+    calendarIds,
+    backward
+  );
+  let days: number[] = [];
+  for (const date of thisMonthDates) {
+    if (date.getMonth() === today.getMonth()) {
+      days.push(date.getDate());
+    }
+  }
+  for (const date of nextMonthDates) {
+    if (date.getMonth() === today.getMonth()) {
+      days.push(date.getDate());
+    }
+  }
+  days = Array.from(new Set(days));
+  let result = days && days.length > 0 ? days[0] : 0;
+  if (result) {
+    let minDaysLeft = 31;
+    for (const day of days) {
+      const daysLeft = day - today.getDate();
+      if (0 <= daysLeft && daysLeft < minDaysLeft) {
+        minDaysLeft = daysLeft;
+        result = day;
+      }
+    }
+  }
+  return result;
 };
 
 /**
@@ -240,4 +412,24 @@ export const getNextTimeInterval = (timeInterval: number): number => {
     return timeIntervalMin;
   }
   return result;
+};
+
+/**
+ * Get a tomorrow date
+ * @param {Date} now
+ * @return {Date}
+ */
+export const getTomorrow = (now: Date): Date => {
+  if (settings.getDebug()) {
+    return now;
+  }
+  return new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0,
+    0,
+    0,
+    0
+  );
 };
