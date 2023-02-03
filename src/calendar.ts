@@ -85,6 +85,13 @@ export const parseDaysStringToDates = (
         if (thisMonthDate.getDay() === numDay) {
           if (exceptHolidays) {
             if (isHoliday(thisMonthDate, calendarIds)) {
+              thisMonthDate.setDate(thisMonthDate.getDate() - 7);
+            } else {
+              results.push(new Date(thisMonthDate));
+              thisMonthDate.setDate(thisMonthDate.getDate() - 7);
+            }
+          } else {
+            if (isHoliday(thisMonthDate, calendarIds)) {
               while (isHoliday(thisMonthDate, calendarIds)) {
                 thisMonthDate.setDate(thisMonthDate.getDate() - 1);
               }
@@ -94,9 +101,6 @@ export const parseDaysStringToDates = (
               results.push(new Date(thisMonthDate));
               thisMonthDate.setDate(thisMonthDate.getDate() - 7);
             }
-          } else {
-            results.push(new Date(thisMonthDate));
-            thisMonthDate.setDate(thisMonthDate.getDate() - 7);
           }
         } else {
           thisMonthDate.setDate(thisMonthDate.getDate() - 1);
@@ -108,6 +112,13 @@ export const parseDaysStringToDates = (
         if (thisMonthDate.getDay() === numDay) {
           if (exceptHolidays) {
             if (isHoliday(thisMonthDate, calendarIds)) {
+              thisMonthDate.setDate(thisMonthDate.getDate() + 7);
+            } else {
+              results.push(new Date(thisMonthDate));
+              thisMonthDate.setDate(thisMonthDate.getDate() + 7);
+            }
+          } else {
+            if (isHoliday(thisMonthDate, calendarIds)) {
               while (isHoliday(thisMonthDate, calendarIds)) {
                 thisMonthDate.setDate(thisMonthDate.getDate() + 1);
               }
@@ -117,9 +128,6 @@ export const parseDaysStringToDates = (
               results.push(new Date(thisMonthDate));
               thisMonthDate.setDate(thisMonthDate.getDate() + 7);
             }
-          } else {
-            results.push(new Date(thisMonthDate));
-            thisMonthDate.setDate(thisMonthDate.getDate() + 7);
           }
         } else {
           thisMonthDate.setDate(thisMonthDate.getDate() + 1);

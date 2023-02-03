@@ -443,7 +443,7 @@ const trueRecord14: sm.ScheduledMessageRecord = {
   id: 14,
   years: [2022, 2023],
   months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  days: 5,
+  days: 12, // next week wednesday
   exceptHolidays: true,
   hms: "00:00:00",
   channel: "random",

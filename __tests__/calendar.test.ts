@@ -141,7 +141,7 @@ describe("unit tests for parseDaysString()", () => {
     jest.setSystemTime(mockDate);
     expect(calendar.parseDaysString("fri", mockDate)).toEqual(10);
   });
-  it("if firstArg === 'sat' and secondArg == Date('2023-02-02T00:00:00+0900') and thirdArg == true and fourthArg == ['dummy'] and fifthArg == true then return 3", () => {
+  it("if firstArg === 'sat' and secondArg == Date('2023-02-02T00:00:00+0900') and thirdArg == true and fourthArg == ['dummy'] and fifthArg == true then return 11", () => {
     const mockDate = new Date("2023-02-02T00:00:00+0900");
     jest.setSystemTime(mockDate);
     jest
@@ -155,7 +155,7 @@ describe("unit tests for parseDaysString()", () => {
       .mockReturnValueOnce(false);
     expect(
       calendar.parseDaysString("sat", mockDate, true, ["dummy"], true)
-    ).toEqual(3);
+    ).toEqual(11);
     jest.spyOn(calendar, "isHoliday").mockClear();
   });
   it("if firstArg === '32' and secondArg == Date('2023-01-04T00:00:00+0900') then return 31", () => {
