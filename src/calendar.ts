@@ -65,7 +65,7 @@ export const parseDaysStringToDates = (
     today = new Date();
   }
   const strDays = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-  const numDay = strDays.indexOf(daysStr.toLowerCase());
+  const numDay = strDays.indexOf(daysStr.toLowerCase().trim());
   if (0 <= numDay && numDay < 7) {
     const thisMonthFirstDate = new Date(today.getTime());
     thisMonthFirstDate.setDate(1);

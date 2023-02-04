@@ -58,7 +58,7 @@ export const getScheduledMessageRecord = (
   );
   if (
     ["sun", "mon", "tue", "wed", "thu", "fri", "sat"].includes(
-      String(tableData.getValue(row, col)).toLowerCase()
+      String(tableData.getValue(row, col)).toLowerCase().trim()
     )
   ) {
     exceptHolidays = false;
