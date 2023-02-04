@@ -444,7 +444,7 @@ const trueRecord14: sm.ScheduledMessageRecord = {
   years: [2022, 2023],
   months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
   days: 5, // this week wednesday
-  exceptHolidays: true,
+  exceptHolidays: false, // always false if a day of the week is specified
   hms: "00:00:00",
   channel: "random",
   sendTo: ["channel"],

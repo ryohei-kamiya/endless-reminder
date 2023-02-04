@@ -46,7 +46,7 @@ export const getScheduledMessageRecord = (
     String(tableData.getValue(row, col++))
   );
   // get exceptHolidays from mainSheet(days are interpreted as number of business days from the beginning of the month if exceptHolidays is true)
-  const exceptHolidays = Boolean(tableData.getValue(row, col + 1));
+  let exceptHolidays = Boolean(tableData.getValue(row, col + 1));
   // get days from mainSheet
   const tomorrow = calendar.getTomorrow(new Date());
   const days = calendar.parseDaysString(
@@ -56,6 +56,13 @@ export const getScheduledMessageRecord = (
     calendarIds,
     true
   );
+  if (
+    ["sun", "mon", "tue", "wed", "thu", "fri", "sat"].includes(
+      String(tableData.getValue(row, col)).toLowerCase()
+    )
+  ) {
+    exceptHolidays = false;
+  }
   col += 2;
   // get the scheduled message sending time from mainSheet
   const hms = utils.convertTimeToString(tableData.getValue(row, col++));
