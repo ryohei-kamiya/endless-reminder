@@ -53,7 +53,8 @@ export const getScheduledMessageRecord = (
     String(tableData.getValue(row, col)),
     tomorrow,
     exceptHolidays,
-    calendarIds
+    calendarIds,
+    true
   );
   col += 2;
   // get the scheduled message sending time from mainSheet
@@ -226,6 +227,9 @@ export const getScheduledMessages = (
       if (record.disabled) {
         continue;
       }
+      if (record.days === 0) {
+        continue;
+      }
       if (argDate) {
         record.channel = slack.convertChannelNameToId(
           record.channel,
@@ -283,6 +287,9 @@ export const getScheduledMessages = (
         continue;
       }
       if (record.disabled) {
+        continue;
+      }
+      if (record.days === 0) {
         continue;
       }
       if (argDate) {
